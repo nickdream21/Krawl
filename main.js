@@ -16,13 +16,25 @@ let indexacionEnProgreso = false;
 let indexacionPausada = false;
 let indexacionCancelada = false;
 
-// Añadir manejo de errores global
+// Añadir manejo de errores global - escribir log en disco para diagnóstico
+const logFile = path.join(app.getPath('userData'), 'krawl-error.log');
 process.on('uncaughtException', (error) => {
+  const msg = `[${new Date().toISOString()}] Error no capturado: ${error.stack || error}\n`;
+  try { fs.appendFileSync(logFile, msg); } catch(e) {}
   console.error('Error no capturado:', error);
 });
 
+process.on('unhandledRejection', (reason) => {
+  const msg = `[${new Date().toISOString()}] Promise rechazada: ${reason?.stack || reason}\n`;
+  try { fs.appendFileSync(logFile, msg); } catch(e) {}
+  console.error('Promise rechazada:', reason);
+});
+
 // Crear carpeta para la base de datos si no existe
-const dataDir = path.join(__dirname, 'data');
+// En producción, __dirname está dentro de app.asar (read-only), usar extraResources
+const dataDir = app.isPackaged
+  ? path.join(process.resourcesPath, 'data')
+  : path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
   console.log('Directorio de datos creado en:', dataDir);
