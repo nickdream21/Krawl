@@ -1,6 +1,6 @@
 {
   "name": "krawl",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Krawl - Gestor inteligente de documentos con OCR",
   "main": "main.js",
   "scripts": {

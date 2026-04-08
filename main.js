@@ -30,11 +30,8 @@ process.on('unhandledRejection', (reason) => {
   console.error('Promise rechazada:', reason);
 });
 
-// Crear carpeta para la base de datos si no existe
-// En producción, __dirname está dentro de app.asar (read-only), usar extraResources
-const dataDir = app.isPackaged
-  ? path.join(process.resourcesPath, 'data')
-  : path.join(__dirname, 'data');
+// Crear carpeta para datos de la app en AppData (no en Program Files)
+const dataDir = app.getPath('userData');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
   console.log('Directorio de datos creado en:', dataDir);
@@ -121,7 +118,6 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: path.join(__dirname, 'build', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -819,18 +815,18 @@ app.whenReady().then(async () => {
   await database.inicializar();
   console.log('Base de datos SQLite inicializada.');
 
-  // Inicializar servicio OCR (tesseract.js worker persistente)
-  try {
-    await ocrService.inicializar();
-    console.log('Servicio OCR inicializado.');
-  } catch (err) {
-    console.error('Error al inicializar OCR (continuando sin OCR):', err.message);
-  }
-
+  // Crear ventana PRIMERO para que sea visible de inmediato
   createWindow();
 
   // Configurar auto-actualizaciones (solo en producción)
   configurarAutoUpdater();
+
+  // Inicializar servicio OCR EN BACKGROUND (no bloquear la ventana)
+  ocrService.inicializar().then(() => {
+    console.log('Servicio OCR inicializado.');
+  }).catch(err => {
+    console.error('Error al inicializar OCR (continuando sin OCR):', err.message);
+  });
 
   // Iniciar verificación automática de documentos nuevos
   if (verificacionAutomaticaActiva) {
