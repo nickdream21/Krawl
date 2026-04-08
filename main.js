@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const database = require('./src/db/database');
@@ -704,6 +705,99 @@ async function indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros = {}) {
   }
 }
 
+// ═══════════════ AUTO-ACTUALIZACIONES ═══════════════
+function configurarAutoUpdater() {
+  if (!app.isPackaged) {
+    console.log('Auto-updater desactivado en modo desarrollo');
+    return;
+  }
+
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Buscando actualizaciones...');
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('Actualización disponible:', info.version);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-available', {
+        version: info.version,
+        releaseNotes: info.releaseNotes || ''
+      });
+    }
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('No hay actualizaciones disponibles');
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-download-progress', {
+        percent: Math.round(progress.percent),
+        transferred: progress.transferred,
+        total: progress.total
+      });
+    }
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('Actualización descargada:', info.version);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-downloaded', {
+        version: info.version
+      });
+    }
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('Error en auto-updater:', err.message);
+  });
+
+  // Verificar actualizaciones al iniciar (después de 5 segundos)
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(err => {
+      console.error('Error al verificar actualizaciones:', err.message);
+    });
+  }, 5000);
+
+  // Verificar cada 4 horas
+  setInterval(() => {
+    autoUpdater.checkForUpdates().catch(err => {
+      console.error('Error al verificar actualizaciones:', err.message);
+    });
+  }, 4 * 60 * 60 * 1000);
+}
+
+// IPC handlers para actualizaciones
+ipcMain.handle('update-download', async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('update-install', () => {
+  autoUpdater.quitAndInstall(false, true);
+});
+
+ipcMain.handle('update-check', async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    return { success: true, version: result?.updateInfo?.version || null };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
+
 // Iniciar aplicación cuando Electron esté listo
 app.whenReady().then(async () => {
   console.log('Electron está listo, inicializando base de datos...');
@@ -721,6 +815,9 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+
+  // Configurar auto-actualizaciones (solo en producción)
+  configurarAutoUpdater();
 
   // Iniciar verificación automática de documentos nuevos
   if (verificacionAutomaticaActiva) {

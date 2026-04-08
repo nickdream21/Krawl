@@ -4,14 +4,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Documentos - Consorcio Presa Sullana</title>
+  <title>Krawl</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <div class="container">
+    <!-- Banner de actualización (oculto por defecto) -->
+    <div id="update-banner" class="update-banner hidden">
+      <div class="update-content">
+        <span id="update-message">Nueva versión disponible</span>
+        <div class="update-actions">
+          <button id="update-action-btn" class="update-btn">Descargar</button>
+          <button id="update-dismiss-btn" class="update-dismiss">&times;</button>
+        </div>
+      </div>
+      <div id="update-progress-bar" class="update-progress hidden">
+        <div id="update-progress-fill" class="update-progress-fill"></div>
+      </div>
+    </div>
+
     <header>
-      <h1>Gestor de Documentos</h1>
+      <h1>Krawl</h1>
+      <span id="app-version" class="app-version"></span>
     </header>
 
     <div class="indexing-panel">
@@ -32,6 +47,28 @@
             <input type="text" id="selectedPath" placeholder="Seleccione una carpeta..." readonly>
             <button id="browseFolderBtn" class="secondary-btn">Examinar Carpeta</button>
             <button id="browseFilesBtn" class="secondary-btn hidden">Examinar Archivos</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="indexDocumentType">Tipo de documento:</label>
+          <select id="indexDocumentType">
+            <option value="all">Todos los permitidos</option>
+            <option value="pdf">Solo PDF</option>
+            <option value="word">Solo Word (.doc, .docx)</option>
+            <option value="excel">Solo Excel (.xls, .xlsx)</option>
+            <option value="image">Solo Imágenes (.jpg, .png, .jpeg)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <label for="indexDateFrom">Fecha desde:</label>
+            <input type="date" id="indexDateFrom" class="date-input" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          </div>
+          <div style="flex:1;">
+            <label for="indexDateTo">Fecha hasta:</label>
+            <input type="date" id="indexDateTo" class="date-input" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
           </div>
         </div>
 

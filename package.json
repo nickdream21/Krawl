@@ -1,7 +1,7 @@
 {
-  "name": "gestor-documentos-sullana",
+  "name": "krawl",
   "version": "1.0.0",
-  "description": "Gestor de Documentos - Consorcio Presa Sullana",
+  "description": "Krawl - Gestor inteligente de documentos con OCR",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -11,6 +11,8 @@
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux",
     "dist": "electron-builder --publish=never",
+    "publish": "electron-builder --win --publish always",
+    "release": "electron-builder --win --publish always",
     "pack": "electron-builder --dir",
     "test": "echo \"No tests specified\" && exit 0"
   },
@@ -18,18 +20,23 @@
     "electron",
     "documentos",
     "pdf",
-    "gestión",
-    "sullana"
+    "ocr",
+    "krawl"
   ],
   "author": "alembert",
   "license": "MIT",
   "homepage": ".",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickdream21/Krawl"
+  },
   "devDependencies": {
     "electron": "^22.0.0",
     "electron-builder": "^24.9.1"
   },
   "dependencies": {
     "compromise": "^14.14.5",
+    "electron-updater": "^6.8.3",
     "lowdb": "^1.0.0",
     "mammoth": "^1.9.0",
     "mupdf": "^1.27.0",
@@ -41,15 +48,21 @@
     "xlsx": "^0.18.5"
   },
   "build": {
-    "appId": "com.sullana.gestor-documentos",
-    "productName": "Gestor de Documentos - Sullana",
+    "appId": "com.krawl.app",
+    "productName": "Krawl",
     "directories": {
       "output": "dist"
     },
     "files": [
-      "**/*",
-      "!**/node_modules/.cache",
-      "!src/**/*.spec.js"
+      "main.js",
+      "preload.js",
+      "package.json",
+      "renderer/**/*",
+      "src/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/{test,tests,__tests__,docs,example,examples}/**",
+      "!node_modules/**/*.md",
+      "!**/*.map"
     ],
     "extraResources": [
       {
@@ -58,15 +71,14 @@
         "filter": [
           "**/*"
         ]
-      },
-      {
-        "from": "ocr_engine_build/ocr_engine",
-        "to": "ocr_engine",
-        "filter": [
-          "**/*"
-        ]
       }
     ],
+    "publish": {
+      "provider": "github",
+      "owner": "nickdream21",
+      "repo": "Krawl",
+      "releaseType": "release"
+    },
     "win": {
       "target": [
         {
@@ -76,7 +88,8 @@
           ]
         }
       ],
-      "requestedExecutionLevel": "asInvoker"
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
@@ -84,7 +97,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Gestor de Documentos"
+      "shortcutName": "Krawl"
     },
     "mac": {
       "category": "public.app-category.productivity"

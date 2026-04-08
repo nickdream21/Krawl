@@ -3,6 +3,68 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchBtn = document.getElementById('searchBtn');
   const resetBtn = document.getElementById('resetBtn');
   const resultsContainer = document.getElementById('results-container');
+
+  // ═══════════════ AUTO-ACTUALIZACIÓN ═══════════════
+  const updateBanner = document.getElementById('update-banner');
+  const updateMessage = document.getElementById('update-message');
+  const updateActionBtn = document.getElementById('update-action-btn');
+  const updateDismissBtn = document.getElementById('update-dismiss-btn');
+  const updateProgressBar = document.getElementById('update-progress-bar');
+  const updateProgressFill = document.getElementById('update-progress-fill');
+  let updateState = 'idle'; // idle | available | downloading | downloaded
+
+  // Mostrar versión de la app
+  if (window.electronAPI.getAppVersion) {
+    window.electronAPI.getAppVersion().then(v => {
+      const versionEl = document.getElementById('app-version');
+      if (versionEl) versionEl.textContent = `v${v}`;
+    });
+  }
+
+  // Escuchar eventos de actualización
+  if (window.electronAPI.onUpdateAvailable) {
+    window.electronAPI.onUpdateAvailable((data) => {
+      updateState = 'available';
+      updateMessage.textContent = `Nueva versión ${data.version} disponible`;
+      updateActionBtn.textContent = 'Descargar';
+      updateActionBtn.disabled = false;
+      updateBanner.classList.remove('hidden');
+      updateProgressBar.classList.add('hidden');
+    });
+
+    window.electronAPI.onUpdateProgress((data) => {
+      updateProgressBar.classList.remove('hidden');
+      updateProgressFill.style.width = `${data.percent}%`;
+      updateMessage.textContent = `Descargando actualización... ${data.percent}%`;
+    });
+
+    window.electronAPI.onUpdateDownloaded((data) => {
+      updateState = 'downloaded';
+      updateMessage.textContent = `Versión ${data.version} lista para instalar`;
+      updateActionBtn.textContent = 'Reiniciar e Instalar';
+      updateActionBtn.disabled = false;
+      updateProgressBar.classList.add('hidden');
+    });
+  }
+
+  if (updateActionBtn) {
+    updateActionBtn.addEventListener('click', async () => {
+      if (updateState === 'available') {
+        updateState = 'downloading';
+        updateActionBtn.textContent = 'Descargando...';
+        updateActionBtn.disabled = true;
+        await window.electronAPI.downloadUpdate();
+      } else if (updateState === 'downloaded') {
+        window.electronAPI.installUpdate();
+      }
+    });
+  }
+
+  if (updateDismissBtn) {
+    updateDismissBtn.addEventListener('click', () => {
+      updateBanner.classList.add('hidden');
+    });
+  }
   const loadingIndicator = document.getElementById('loading');
 
   // Referencias para indexación de rutas

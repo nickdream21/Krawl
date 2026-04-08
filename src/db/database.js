@@ -4,7 +4,16 @@ const fs = require('fs');
 const os = require('os');
 
 // Ruta a la base de datos en AppData del usuario
-const userDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Gestor-Documentos-Sullana');
+const newDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Krawl');
+const oldDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Gestor-Documentos-Sullana');
+
+// Migrar datos del nombre anterior si existen
+if (fs.existsSync(oldDataPath) && !fs.existsSync(newDataPath)) {
+  fs.renameSync(oldDataPath, newDataPath);
+  console.log('Datos migrados de Gestor-Documentos-Sullana a Krawl');
+}
+
+const userDataPath = newDataPath;
 const sqlitePath = path.join(userDataPath, 'documentos.sqlite');
 const jsonPath = path.join(userDataPath, 'documentos.json');
 

@@ -1,11 +1,11 @@
-; Inno Setup Script for Gestor de Documentos
+; Inno Setup Script for Krawl
 ; This creates a single installer that includes everything
 
-#define MyAppName "Gestor de Documentos - Sullana"
+#define MyAppName "Krawl"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Consorcio Presa Sullana"
-#define MyAppExeName "Gestor de Documentos.exe"
-#define SourcePath "portable-build\Gestor de Documentos-win32-x64"
+#define MyAppPublisher "Krawl"
+#define MyAppExeName "Krawl.exe"
+#define SourcePath "portable-build\Krawl-win32-x64"
 
 [Setup]
 AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
@@ -16,7 +16,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=installer-output
-OutputBaseFilename=Gestor_Documentos_Setup_v{#MyAppVersion}
+OutputBaseFilename=Krawl_Setup_v{#MyAppVersion}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern

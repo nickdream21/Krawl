@@ -11,9 +11,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // NUEVAS FUNCIONES PARA CAMPO DE RUTA
   seleccionarCarpeta: () => ipcRenderer.invoke('seleccionar-carpeta'),
-  indexarCarpetaEspecifica: (rutaCarpeta) => ipcRenderer.invoke('indexar-carpeta-especifica', rutaCarpeta),
+  indexarCarpetaEspecifica: (rutaCarpeta, filtros) => ipcRenderer.invoke('indexar-carpeta-especifica', { rutaCarpeta, filtros }),
   seleccionarArchivos: () => ipcRenderer.invoke('seleccionar-archivos'),
-  indexarArchivosSeleccionados: (archivos) => ipcRenderer.invoke('indexar-archivos-seleccionados', archivos),
+  indexarArchivosSeleccionados: (archivos, filtros) => ipcRenderer.invoke('indexar-archivos-seleccionados', { archivos, filtros }),
 
   // NUEVAS FUNCIONES PARA CONTROL DE INDEXACIÓN
   pausarIndexacion: () => ipcRenderer.invoke('pausar-indexacion'),
@@ -53,5 +53,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // NUEVAS FUNCIONES PARA DESCARGA
   descargarDocumento: (ruta) => ipcRenderer.invoke('descargar-documento', ruta),
-  descargarVariosDocumentos: (rutas) => ipcRenderer.invoke('descargar-varios-documentos', rutas)
+  descargarVariosDocumentos: (rutas) => ipcRenderer.invoke('descargar-varios-documentos', rutas),
+
+  // FUNCIONES DE AUTO-ACTUALIZACIÓN
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('update-check'),
+  downloadUpdate: () => ipcRenderer.invoke('update-download'),
+  installUpdate: () => ipcRenderer.invoke('update-install'),
+
+  onUpdateAvailable: (callback) => {
+    const subscription = (event, data) => callback(data);
+    ipcRenderer.on('update-available', subscription);
+    return () => ipcRenderer.removeListener('update-available', subscription);
+  },
+  onUpdateProgress: (callback) => {
+    const subscription = (event, data) => callback(data);
+    ipcRenderer.on('update-download-progress', subscription);
+    return () => ipcRenderer.removeListener('update-download-progress', subscription);
+  },
+  onUpdateDownloaded: (callback) => {
+    const subscription = (event, data) => callback(data);
+    ipcRenderer.on('update-downloaded', subscription);
+    return () => ipcRenderer.removeListener('update-downloaded', subscription);
+  }
 });
