@@ -895,6 +895,7 @@ function validarCriterios(criterios) {
     dateFrom: typeof criterios.dateFrom === 'string' ? criterios.dateFrom.slice(0, 10) : '',
     dateTo: typeof criterios.dateTo === 'string' ? criterios.dateTo.slice(0, 10) : '',
     documentType: typeof criterios.documentType === 'string' ? criterios.documentType.slice(0, 50) : '',
+    sortOrder: criterios.sortOrder === 'asc' ? 'asc' : 'desc',
     page: parseInt(criterios.page) || 1,
     pageSize: parseInt(criterios.pageSize) || 50
   };
