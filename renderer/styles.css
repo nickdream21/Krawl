@@ -413,6 +413,11 @@ button {
   border-bottom: 1px solid var(--border-light);
 }
 
+.sortable-header:hover {
+  color: var(--primary);
+  background: var(--bg-elevated);
+}
+
 .results-table td {
   padding: 16px;
   border-bottom: 1px solid var(--bg-subtle);

@@ -281,7 +281,8 @@ module.exports = {
         countStmt.free();
 
         // Añadir ordenación y paginación
-        sql += ' ORDER BY d.fecha_indexacion DESC';
+        const sortDir = criterios.sortOrder === 'asc' ? 'ASC' : 'DESC';
+        sql += ` ORDER BY d.fecha ${sortDir}, d.fecha_indexacion ${sortDir}`;
 
         const page = Math.max(1, parseInt(criterios.page) || 1);
         const pageSize = Math.max(1, Math.min(200, parseInt(criterios.pageSize) || 50));

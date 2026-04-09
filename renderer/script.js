@@ -95,12 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateFrom = document.getElementById('dateFrom').value;
     const dateTo = document.getElementById('dateTo').value;
     const documentType = document.getElementById('documentType').value;
+    const sortOrder = document.getElementById('sortOrder').value;
 
     loadingIndicator.classList.remove('hidden');
     resultsContainer.innerHTML = '';
 
     try {
-      const criterios = { keyword, dateFrom, dateTo, documentType, page: pagina, pageSize: RESULTADOS_POR_PAGINA };
+      const criterios = { keyword, dateFrom, dateTo, documentType, sortOrder, page: pagina, pageSize: RESULTADOS_POR_PAGINA };
       ultimosCriterios = criterios;
       const respuesta = await window.electronAPI.buscarDocumentos(criterios);
 
@@ -129,16 +130,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Crear encabezado
     const thead = document.createElement('thead');
+    const currentSort = document.getElementById('sortOrder').value;
+    const sortIcon = currentSort === 'desc' ? ' ▼' : ' ▲';
     thead.innerHTML = `
       <tr>
         <th>Nombre</th>
-        <th>Fecha</th>
+        <th class="sortable-header" id="sort-fecha" style="cursor:pointer; user-select:none;" title="Clic para cambiar orden">Fecha${sortIcon}</th>
         <th>Tipo</th>
         <th>Asunto</th>
         <th>Acciones</th>
       </tr>
     `;
     tabla.appendChild(thead);
+
+    // Click en header de fecha para alternar orden
+    thead.querySelector('#sort-fecha').addEventListener('click', () => {
+      const sel = document.getElementById('sortOrder');
+      sel.value = sel.value === 'desc' ? 'asc' : 'desc';
+      buscarDocumentos(1);
+    });
 
     // Crear cuerpo de la tabla
     const tbody = document.createElement('tbody');
