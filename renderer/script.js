@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
   // Referencias a elementos del DOM
   const searchBtn = document.getElementById('searchBtn');
   const resetBtn = document.getElementById('resetBtn');
@@ -1152,6 +1152,21 @@ function showProgressSummary(data) {
 
 let enterpriseDbPath = null;
 
+// Inicializar enterpriseDbPath desde config guardada al arrancar
+if (window.electronAPI && window.electronAPI.enterpriseGetConfig) {
+  window.electronAPI.enterpriseGetConfig().then(config => {
+    if (config && config.dbPath) {
+      enterpriseDbPath = config.dbPath;
+      const indicator = document.getElementById('enterprise-db-indicator');
+      if (indicator) {
+        indicator.classList.remove('db-indicator--unknown');
+        indicator.classList.add('db-indicator--connected');
+        indicator.title = 'Conectado: ' + config.dbPath;
+      }
+    }
+  }).catch(() => {});
+}
+
 // Escuchar cuando se necesita configuracion
 if (window.electronAPI.onEnterpriseConfigNeeded) {
   window.electronAPI.onEnterpriseConfigNeeded(() => {
@@ -1200,12 +1215,28 @@ if (enterpriseBrowseBtn) {
       const input = document.getElementById('enterprise-db-path-input');
       if (input) input.value = result.dbPath;
       const preview = document.getElementById('enterprise-setup-preview');
-      if (preview) preview.textContent = 'La base de datos se guardara en: ' + result.dbPath;
+      if (preview) preview.textContent = 'Archivo seleccionado: ' + result.dbPath;
       const connectBtn = document.getElementById('enterprise-connect-btn');
       if (connectBtn) connectBtn.disabled = false;
     }
   });
 }
+
+const enterpriseCreateBtn = document.getElementById('enterprise-create-btn');
+if (enterpriseCreateBtn) {
+  enterpriseCreateBtn.addEventListener('click', async () => {
+    const result = await window.electronAPI.enterpriseCreateDb();
+    if (result && result.success) {
+      const input = document.getElementById('enterprise-db-path-input');
+      if (input) input.value = result.dbPath;
+      const preview = document.getElementById('enterprise-setup-preview');
+      if (preview) preview.textContent = 'Se creara la base de datos en: ' + result.dbPath;
+      const connectBtn = document.getElementById('enterprise-connect-btn');
+      if (connectBtn) connectBtn.disabled = false;
+    }
+  });
+}
+
 
 // Boton conectar en setup modal
 const enterpriseConnectBtn = document.getElementById('enterprise-connect-btn');

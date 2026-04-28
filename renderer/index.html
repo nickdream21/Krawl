@@ -227,11 +227,24 @@
   <div id="enterprise-setup-modal" class="enterprise-modal-overlay hidden">
     <div class="enterprise-modal-card">
       <h2 class="enterprise-modal-title">Configuracion de base de datos compartida</h2>
-      <p class="enterprise-modal-desc">Selecciona la carpeta compartida de Google Drive donde todos los usuarios tienen acceso. Krawl creara automaticamente la subcarpeta <strong>KrawlDB</strong> dentro de ella.</p>
-      <p class="enterprise-modal-hint">Ejemplo: <em>Google Drive (G:) &rarr; Mi unidad &rarr; E&amp;CDN</em></p>
-      <div class="enterprise-modal-field">
-        <input type="text" id="enterprise-db-path-input" class="enterprise-path-input" placeholder="Ninguna carpeta seleccionada" readonly>
-        <button id="enterprise-browse-btn" class="secondary-btn">Examinar...</button>
+            <p class="enterprise-modal-desc">Conecta Krawl a la base de datos compartida del equipo en Google Drive.</p>
+
+      <div class="enterprise-option-group">
+        <div class="enterprise-option-card">
+          <p class="enterprise-option-title">Ya existe una base de datos</p>
+          <p class="enterprise-option-desc">Otro usuario ya configuro Krawl Enterprise. Selecciona el archivo <strong>documentos.sqlite</strong> de la carpeta compartida.</p>
+          <button id="enterprise-browse-btn" class="secondary-btn">Seleccionar archivo...</button>
+        </div>
+        <div class="enterprise-option-divider">o</div>
+        <div class="enterprise-option-card">
+          <p class="enterprise-option-title">Soy el primero en configurar</p>
+          <p class="enterprise-option-desc">Selecciona la carpeta compartida de Google Drive donde se creara la base de datos.</p>
+          <button id="enterprise-create-btn" class="secondary-btn">Crear en carpeta...</button>
+        </div>
+      </div>
+
+      <div class="enterprise-modal-field" style="margin-top:12px;">
+        <input type="text" id="enterprise-db-path-input" class="enterprise-path-input" placeholder="Ninguna ruta seleccionada" readonly>
       </div>
       <p id="enterprise-setup-preview" class="enterprise-preview-msg"></p>
       <p id="enterprise-setup-error" class="enterprise-error-msg"></p>

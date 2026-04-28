@@ -1,8 +1,8 @@
-const { contextBridge, ipcRenderer } = require('electron');
+﻿const { contextBridge, ipcRenderer } = require('electron');
 
 // Exponer funciones seguras al proceso de renderizado
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Funciones para gestión documental (existentes)
+  // Funciones para gestiÃ³n documental (existentes)
   buscarDocumentos: (criterios) => ipcRenderer.invoke('buscar-documentos', criterios),
   abrirDocumento: (ruta) => ipcRenderer.invoke('abrir-documento', ruta),
   abrirEnCarpeta: (ruta) => ipcRenderer.invoke('abrir-en-carpeta', ruta),
@@ -15,15 +15,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   seleccionarArchivos: () => ipcRenderer.invoke('seleccionar-archivos'),
   indexarArchivosSeleccionados: (archivos, filtros) => ipcRenderer.invoke('indexar-archivos-seleccionados', { archivos, filtros }),
 
-  // NUEVAS FUNCIONES PARA CONTROL DE INDEXACIÓN
+  // NUEVAS FUNCIONES PARA CONTROL DE INDEXACIÃ“N
   pausarIndexacion: () => ipcRenderer.invoke('pausar-indexacion'),
   reanudarIndexacion: () => ipcRenderer.invoke('reanudar-indexacion'),
   cancelarIndexacion: () => ipcRenderer.invoke('cancelar-indexacion'),
 
-  // NUEVA FUNCIÓN PARA EDITAR ASUNTO
+  // NUEVA FUNCIÃ“N PARA EDITAR ASUNTO
   actualizarAsuntoDocumento: (ruta, nuevoAsunto) => ipcRenderer.invoke('actualizar-asunto-documento', { ruta, nuevoAsunto }),
 
-  // Funciones para detección y procesamiento de documentos nuevos
+  // Funciones para detecciÃ³n y procesamiento de documentos nuevos
   verificarDocumentosNuevos: () => ipcRenderer.invoke('verificar-documentos-nuevos'),
   procesarDocumentoNuevo: (documento, asunto) =>
     ipcRenderer.invoke('procesar-documento-nuevo', { documento, asunto }),
@@ -35,13 +35,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const subscription = (event, documentos) => callback(documentos);
     ipcRenderer.on('documentos-nuevos-detectados', subscription);
 
-    // Devolver una función para eliminar el listener cuando ya no sea necesario
+    // Devolver una funciÃ³n para eliminar el listener cuando ya no sea necesario
     return () => {
       ipcRenderer.removeListener('documentos-nuevos-detectados', subscription);
     };
   },
 
-  // NUEVO: Receptor de eventos para progreso de indexación
+  // NUEVO: Receptor de eventos para progreso de indexaciÃ³n
   onIndexacionProgreso: (callback) => {
     const subscription = (event, data) => callback(data);
     ipcRenderer.on('indexacion-progreso', subscription);
@@ -55,7 +55,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   descargarDocumento: (ruta) => ipcRenderer.invoke('descargar-documento', ruta),
   descargarVariosDocumentos: (rutas) => ipcRenderer.invoke('descargar-varios-documentos', rutas),
 
-  // FUNCIONES DE AUTO-ACTUALIZACIÓN
+  // FUNCIONES DE AUTO-ACTUALIZACIÃ“N
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   checkForUpdates: () => ipcRenderer.invoke('update-check'),
   downloadUpdate: () => ipcRenderer.invoke('update-download'),
@@ -81,6 +81,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   enterpriseGetConfig: () => ipcRenderer.invoke('enterprise-get-config'),
   enterpriseSetConfig: (config) => ipcRenderer.invoke('enterprise-set-config', config),
   enterpriseSelectDbFolder: () => ipcRenderer.invoke('enterprise-select-db-folder'),
+  enterpriseCreateDb: () => ipcRenderer.invoke('enterprise-create-db'),
   enterpriseDbStatus: () => ipcRenderer.invoke('enterprise-db-status'),
   onEnterpriseConfigNeeded: (callback) => {
     const sub = (event, data) => callback(data);

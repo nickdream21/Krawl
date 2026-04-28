@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+﻿const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -43,12 +43,12 @@ function guardarConfigEnterprise(config) {
 }
 // -------------------------
 
-// VARIABLES GLOBALES PARA CONTROL DE INDEXACIÓN
+// VARIABLES GLOBALES PARA CONTROL DE INDEXACIÃ“N
 let indexacionEnProgreso = false;
 let indexacionPausada = false;
 let indexacionCancelada = false;
 
-// Añadir manejo de errores global - escribir log en disco para diagnóstico
+// AÃ±adir manejo de errores global - escribir log en disco para diagnÃ³stico
 const logFile = path.join(app.getPath('userData'), 'krawl-error.log');
 process.on('uncaughtException', (error) => {
   const msg = `[${new Date().toISOString()}] Error no capturado: ${error.stack || error}\n`;
@@ -69,7 +69,7 @@ if (!fs.existsSync(dataDir)) {
   console.log('Directorio de datos creado en:', dataDir);
 }
 
-// Variables para la detección automática de documentos
+// Variables para la detecciÃ³n automÃ¡tica de documentos
 let ultimaVerificacion = new Date();
 const INTERVALO_VERIFICACION = 300000; // 5 minutos en milisegundos
 let verificacionAutomaticaActiva = true;
@@ -78,13 +78,13 @@ let timerVerificacion = null;
 // Mantener referencia global
 let mainWindow;
 
-// Función auxiliar para verificar si un archivo es válido (PDF o Word)
+// FunciÃ³n auxiliar para verificar si un archivo es vÃ¡lido (PDF o Word)
 function esArchivoValido(rutaArchivo) {
   const extension = path.extname(rutaArchivo).toLowerCase();
   return ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png'].includes(extension);
 }
 
-// Función auxiliar para procesar un documento (PDF, Word, Excel, Imagen)
+// FunciÃ³n auxiliar para procesar un documento (PDF, Word, Excel, Imagen)
 async function procesarArchivo(rutaArchivo) {
   const extension = path.extname(rutaArchivo).toLowerCase();
 
@@ -100,7 +100,7 @@ async function procesarArchivo(rutaArchivo) {
         if (ocrResult && ocrResult.text && ocrResult.text.length > 0) {
           info.texto = ocrResult.text;
 
-          // Usar módulo centralizado de detección de asunto
+          // Usar mÃ³dulo centralizado de detecciÃ³n de asunto
           info.asunto = detectarAsunto(ocrResult.text) || 'Documento Escaneado (OCR)';
         }
       }
@@ -188,14 +188,14 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  // Detectar errores al cargar la página
+  // Detectar errores al cargar la pÃ¡gina
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error('Error al cargar la página:', errorCode, errorDescription);
+    console.error('Error al cargar la pÃ¡gina:', errorCode, errorDescription);
   });
 
-  // Confirmar cuando la página se ha cargado correctamente
+  // Confirmar cuando la pÃ¡gina se ha cargado correctamente
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Página cargada correctamente');
+    console.log('PÃ¡gina cargada correctamente');
 
     // Enviar estado enterprise al renderer
     if (!enterpriseConfig || !enterpriseConfig.dbPath) {
@@ -220,10 +220,10 @@ function createWindow() {
   });
 }
 
-// Función para verificar documentos nuevos (ACTUALIZADA para incluir Word)
+// FunciÃ³n para verificar documentos nuevos (ACTUALIZADA para incluir Word)
 async function verificarDocumentosNuevos() {
   try {
-    console.log('Iniciando verificación de documentos nuevos...');
+    console.log('Iniciando verificaciÃ³n de documentos nuevos...');
 
     // Obtener lista actual de documentos desde el drive/sistema de archivos
     const documentosActuales = await driveApi.listarTodosLosDocumentos();
@@ -245,7 +245,7 @@ async function verificarDocumentosNuevos() {
       }
     }
 
-    // Actualizar la última verificación
+    // Actualizar la Ãºltima verificaciÃ³n
     ultimaVerificacion = new Date();
 
     // Si se encontraron documentos nuevos, notificar al frontend
@@ -256,7 +256,7 @@ async function verificarDocumentosNuevos() {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('documentos-nuevos-detectados', documentosNuevos);
       } else {
-        console.log('La ventana principal no está disponible para notificar.');
+        console.log('La ventana principal no estÃ¡ disponible para notificar.');
       }
     } else {
       console.log('No se encontraron documentos nuevos.');
@@ -264,12 +264,12 @@ async function verificarDocumentosNuevos() {
 
     return documentosNuevos;
   } catch (error) {
-    console.error('Error durante la verificación de documentos nuevos:', error);
+    console.error('Error durante la verificaciÃ³n de documentos nuevos:', error);
     return [];
   }
 }
 
-// Función para procesar un documento nuevo con asunto personalizado (ACTUALIZADA)
+// FunciÃ³n para procesar un documento nuevo con asunto personalizado (ACTUALIZADA)
 async function procesarDocumentoNuevo(documento, asuntoPersonalizado) {
   try {
     console.log(`Procesando documento nuevo con asunto personalizado: ${documento.nombre}`);
@@ -279,12 +279,12 @@ async function procesarDocumentoNuevo(documento, asuntoPersonalizado) {
     try {
       const infoPromise = procesarArchivo(documento.ruta);
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Tiempo límite excedido al procesar documento')), 120000);
+        setTimeout(() => reject(new Error('Tiempo lÃ­mite excedido al procesar documento')), 120000);
       });
 
       documentoInfo = await Promise.race([infoPromise, timeoutPromise]);
     } catch (docError) {
-      console.error(`Error o tiempo límite al procesar documento ${documento.nombre}: ${docError.message}`);
+      console.error(`Error o tiempo lÃ­mite al procesar documento ${documento.nombre}: ${docError.message}`);
       documentoInfo = { texto: '', asunto: 'Error al procesar' };
     }
 
@@ -306,17 +306,17 @@ async function procesarDocumentoNuevo(documento, asuntoPersonalizado) {
   }
 }
 
-// FUNCIÓN PARA INDEXAR CARPETA ESPECÍFICA (ACTUALIZADA para incluir Word)
+// FUNCIÃ“N PARA INDEXAR CARPETA ESPECÃFICA (ACTUALIZADA para incluir Word)
 async function indexarCarpetaEspecifica(rutaCarpeta) {
   try {
-    console.log(`Iniciando indexación de carpeta específica: ${rutaCarpeta}`);
+    console.log(`Iniciando indexaciÃ³n de carpeta especÃ­fica: ${rutaCarpeta}`);
 
     // Verificar que la carpeta existe
     if (!fs.existsSync(rutaCarpeta)) {
       throw new Error('La carpeta especificada no existe');
     }
 
-    // Función recursiva para obtener todos los archivos válidos de una carpeta
+    // FunciÃ³n recursiva para obtener todos los archivos vÃ¡lidos de una carpeta
     function obtenerArchivosValidos(directorio) {
       const archivos = [];
 
@@ -331,7 +331,7 @@ async function indexarCarpetaEspecifica(rutaCarpeta) {
             // Si es un directorio, procesar recursivamente
             archivos.push(...obtenerArchivosValidos(rutaCompleta));
           } else if (stats.isFile() && esArchivoValido(rutaCompleta)) {
-            // Si es un archivo válido (PDF o Word), agregarlo a la lista
+            // Si es un archivo vÃ¡lido (PDF o Word), agregarlo a la lista
             const extension = path.extname(rutaCompleta).toLowerCase();
             console.log(`Encontrado archivo ${extension.toUpperCase()}: ${elemento}`);
 
@@ -351,12 +351,12 @@ async function indexarCarpetaEspecifica(rutaCarpeta) {
       return archivos;
     }
 
-    // Función auxiliar para determinar el tipo de documento
-    // (usa función centralizada de doc-utils)
+    // FunciÃ³n auxiliar para determinar el tipo de documento
+    // (usa funciÃ³n centralizada de doc-utils)
 
-    // Obtener todos los archivos válidos de la carpeta
+    // Obtener todos los archivos vÃ¡lidos de la carpeta
     const documentos = obtenerArchivosValidos(rutaCarpeta);
-    console.log(`Se encontraron ${documentos.length} documentos válidos en la carpeta.`);
+    console.log(`Se encontraron ${documentos.length} documentos vÃ¡lidos en la carpeta.`);
 
     let indexados = 0;
     let errores = 0;
@@ -378,14 +378,14 @@ async function indexarCarpetaEspecifica(rutaCarpeta) {
 
         const infoPromise = procesarArchivo(doc.ruta);
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Tiempo límite excedido al procesar documento')), 120000);
+          setTimeout(() => reject(new Error('Tiempo lÃ­mite excedido al procesar documento')), 120000);
         });
 
         let documentoInfo;
         try {
           documentoInfo = await Promise.race([infoPromise, timeoutPromise]);
         } catch (docError) {
-          console.error(`Error o tiempo límite al procesar documento ${doc.nombre}: ${docError.message}`);
+          console.error(`Error o tiempo lÃ­mite al procesar documento ${doc.nombre}: ${docError.message}`);
           documentoInfo = { texto: '', asunto: 'Error al procesar' };
         }
 
@@ -411,7 +411,7 @@ async function indexarCarpetaEspecifica(rutaCarpeta) {
         errores++;
       }
     }
-    const mensaje = `Indexación de carpeta completada. ${indexados} documentos nuevos indexados. ${yaExisten} ya existían. ${errores} errores.`;
+    const mensaje = `IndexaciÃ³n de carpeta completada. ${indexados} documentos nuevos indexados. ${yaExisten} ya existÃ­an. ${errores} errores.`;
     console.log(mensaje);
     return {
       success: true,
@@ -422,31 +422,31 @@ async function indexarCarpetaEspecifica(rutaCarpeta) {
       total: documentos.length
     };
   } catch (error) {
-    console.error('Error durante la indexación de carpeta específica:', error);
+    console.error('Error durante la indexaciÃ³n de carpeta especÃ­fica:', error);
     return { success: false, error: error.message };
   }
 }
 
-// Función auxiliar para formatear tiempo en MM:SS
+// FunciÃ³n auxiliar para formatear tiempo en MM:SS
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60);
   const segs = segundos % 60;
   return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
 }
 
-// Función centralizada para procesar una lista de documentos con progreso
+// FunciÃ³n centralizada para procesar una lista de documentos con progreso
 async function procesarListaDeDocumentos(documentos) {
   // Caso especial: no hay documentos
   if (!documentos || documentos.length === 0) {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('indexacion-progreso', {
         tipo: 'sin-documentos',
-        message: 'No se encontraron documentos válidos para indexar'
+        message: 'No se encontraron documentos vÃ¡lidos para indexar'
       });
     }
     return {
       success: true,
-      message: 'No se encontraron documentos válidos',
+      message: 'No se encontraron documentos vÃ¡lidos',
       documentosIndexados: 0,
       documentosExistentes: 0,
       errores: 0,
@@ -454,7 +454,7 @@ async function procesarListaDeDocumentos(documentos) {
     };
   }
 
-  // Enviar información inicial al frontend
+  // Enviar informaciÃ³n inicial al frontend
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('indexacion-progreso', {
       tipo: 'inicio',
@@ -473,7 +473,7 @@ async function procesarListaDeDocumentos(documentos) {
   let yaExisten = 0;
   const tiempoInicio = Date.now();
 
-  // Para cálculo de tiempo más preciso (solo considera tiempo de procesamiento real)
+  // Para cÃ¡lculo de tiempo mÃ¡s preciso (solo considera tiempo de procesamiento real)
   let tiempoProcesamientoTotal = 0;
   let documentosProcesadosReal = 0; // Solo los que realmente se procesan (no existentes)
 
@@ -486,9 +486,9 @@ async function procesarListaDeDocumentos(documentos) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // VERIFICAR CONTROL DE CANCELACIÓN
+    // VERIFICAR CONTROL DE CANCELACIÃ“N
     if (indexacionCancelada) {
-      console.log('Indexación cancelada por el usuario');
+      console.log('IndexaciÃ³n cancelada por el usuario');
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('indexacion-progreso', {
           tipo: 'cancelado',
@@ -513,14 +513,14 @@ async function procesarListaDeDocumentos(documentos) {
       let tiempoEstimadoStr = 'Calculando...';
       if (documentosProcesadosReal > 0) {
         const promedioMs = tiempoProcesamientoTotal / documentosProcesadosReal;
-        // Estimar cuántos documentos nuevos quedan (asumiendo misma proporción)
+        // Estimar cuÃ¡ntos documentos nuevos quedan (asumiendo misma proporciÃ³n)
         const proporcionNuevos = documentosProcesadosReal / (indexados || 1);
         const restantes = documentos.length - indexados;
         const estimadosNuevos = Math.ceil(restantes * proporcionNuevos);
         const tiempoRestante = Math.floor((promedioMs * estimadosNuevos) / 1000);
         tiempoEstimadoStr = formatearTiempo(tiempoRestante);
       } else if (indexados > 0 && yaExisten === indexados) {
-        // Todos los procesados hasta ahora ya existían
+        // Todos los procesados hasta ahora ya existÃ­an
         tiempoEstimadoStr = '< 00:01';
       }
 
@@ -547,7 +547,7 @@ async function procesarListaDeDocumentos(documentos) {
         yaExisten++;
         indexados++;
 
-        // Notificar que se saltó un archivo existente
+        // Notificar que se saltÃ³ un archivo existente
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.webContents.send('indexacion-progreso', {
             tipo: 'existente',
@@ -565,7 +565,7 @@ async function procesarListaDeDocumentos(documentos) {
 
       const infoPromise = procesarArchivo(doc.ruta);
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Tiempo límite excedido (2 min)')), 120000);
+        setTimeout(() => reject(new Error('Tiempo lÃ­mite excedido (2 min)')), 120000);
       });
 
       let documentoInfo;
@@ -584,7 +584,7 @@ async function procesarListaDeDocumentos(documentos) {
 
         exitosos++;
 
-        // Actualizar métricas de tiempo
+        // Actualizar mÃ©tricas de tiempo
         tiempoProcesamientoTotal += (Date.now() - inicioProc);
         documentosProcesadosReal++;
 
@@ -592,7 +592,7 @@ async function procesarListaDeDocumentos(documentos) {
         console.error(`Error al procesar ${doc.nombre}: ${docError.message}`);
         errores++;
 
-        // Enviar error específico al frontend
+        // Enviar error especÃ­fico al frontend
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.webContents.send('indexacion-progreso', {
             tipo: 'error',
@@ -611,18 +611,18 @@ async function procesarListaDeDocumentos(documentos) {
     }
   }
 
-  // Finalizar indexación
+  // Finalizar indexaciÃ³n
   indexacionEnProgreso = false;
   indexacionPausada = false;
 
   const tiempoTotal = Math.floor((Date.now() - tiempoInicio) / 1000);
 
-  // Determinar tipo de finalización
+  // Determinar tipo de finalizaciÃ³n
   if (!indexacionCancelada) {
     let tipoFinal = 'completado';
-    let mensajeFinal = 'Indexación completada';
+    let mensajeFinal = 'IndexaciÃ³n completada';
 
-    // Caso especial: todos los archivos ya existían
+    // Caso especial: todos los archivos ya existÃ­an
     if (yaExisten === documentos.length && exitosos === 0 && errores === 0) {
       tipoFinal = 'todos-existentes';
       mensajeFinal = 'Todos los archivos ya estaban indexados';
@@ -647,18 +647,18 @@ async function procesarListaDeDocumentos(documentos) {
   // Generar mensaje de resumen
   let mensaje;
   if (indexacionCancelada) {
-    mensaje = `Cancelado: ${exitosos} procesados, ${yaExisten} existían, ${errores} errores`;
+    mensaje = `Cancelado: ${exitosos} procesados, ${yaExisten} existÃ­an, ${errores} errores`;
   } else if (yaExisten === documentos.length && exitosos === 0) {
     mensaje = `Todos los ${yaExisten} archivos ya estaban indexados`;
   } else {
-    mensaje = `Completado: ${exitosos} nuevos, ${yaExisten} existían, ${errores} errores`;
+    mensaje = `Completado: ${exitosos} nuevos, ${yaExisten} existÃ­an, ${errores} errores`;
   }
   console.log(mensaje);
 
-  // Forzar guardado a disco después de indexación masiva
+  // Forzar guardado a disco despuÃ©s de indexaciÃ³n masiva
   database.forzarGuardado();
 
-  // Resetear flag de cancelación para próxima ejecución
+  // Resetear flag de cancelaciÃ³n para prÃ³xima ejecuciÃ³n
   indexacionCancelada = false;
 
   return {
@@ -672,10 +672,10 @@ async function procesarListaDeDocumentos(documentos) {
   };
 }
 
-// NUEVA FUNCIÓN DE INDEXACIÓN CON PROGRESO EN TIEMPO REAL
+// NUEVA FUNCIÃ“N DE INDEXACIÃ“N CON PROGRESO EN TIEMPO REAL
 async function indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros = {}) {
   try {
-    console.log(`Iniciando indexación con progreso en tiempo real: ${rutaCarpeta}`);
+    console.log(`Iniciando indexaciÃ³n con progreso en tiempo real: ${rutaCarpeta}`);
 
     // Inicializar variables de control
     indexacionEnProgreso = true;
@@ -687,7 +687,7 @@ async function indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros = {}) {
       throw new Error('La carpeta especificada no existe');
     }
 
-    // Función recursiva para obtener todos los archivos válidos
+    // FunciÃ³n recursiva para obtener todos los archivos vÃ¡lidos
     function obtenerArchivosValidos(directorio) {
       const archivos = [];
 
@@ -735,14 +735,14 @@ async function indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros = {}) {
       return archivos;
     }
 
-    // Obtener todos los archivos válidos
+    // Obtener todos los archivos vÃ¡lidos
     const documentos = obtenerArchivosValidos(rutaCarpeta);
-    console.log(`Se encontraron ${documentos.length} documentos válidos.`);
+    console.log(`Se encontraron ${documentos.length} documentos vÃ¡lidos.`);
 
     return await procesarListaDeDocumentos(documentos);
 
   } catch (error) {
-    console.error('Error durante la indexación:', error);
+    console.error('Error durante la indexaciÃ³n:', error);
 
     // Resetear variables de control en caso de error
     indexacionEnProgreso = false;
@@ -761,7 +761,7 @@ async function indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros = {}) {
   }
 }
 
-// ═══════════════ AUTO-ACTUALIZACIONES ═══════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• AUTO-ACTUALIZACIONES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function configurarAutoUpdater() {
   if (!app.isPackaged) {
     console.log('Auto-updater desactivado en modo desarrollo');
@@ -776,7 +776,7 @@ function configurarAutoUpdater() {
   });
 
   autoUpdater.on('update-available', (info) => {
-    console.log('Actualización disponible:', info.version);
+    console.log('ActualizaciÃ³n disponible:', info.version);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-available', {
         version: info.version,
@@ -800,7 +800,7 @@ function configurarAutoUpdater() {
   });
 
   autoUpdater.on('update-downloaded', (info) => {
-    console.log('Actualización descargada:', info.version);
+    console.log('ActualizaciÃ³n descargada:', info.version);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-downloaded', {
         version: info.version
@@ -812,7 +812,7 @@ function configurarAutoUpdater() {
     console.error('Error en auto-updater:', err.message);
   });
 
-  // Verificar actualizaciones al iniciar (después de 5 segundos)
+  // Verificar actualizaciones al iniciar (despuÃ©s de 5 segundos)
   setTimeout(() => {
     autoUpdater.checkForUpdates().catch(err => {
       console.error('Error al verificar actualizaciones:', err.message);
@@ -854,9 +854,9 @@ ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
-// Iniciar aplicación cuando Electron esté listo
+// Iniciar aplicaciÃ³n cuando Electron estÃ© listo
 app.whenReady().then(async () => {
-  console.log('Electron está listo, inicializando base de datos...');
+  console.log('Electron estÃ¡ listo, inicializando base de datos...');
 
   // Leer config enterprise ANTES de inicializar la DB
   enterpriseConfig = leerConfigEnterprise();
@@ -880,7 +880,7 @@ app.whenReady().then(async () => {
   // Crear ventana PRIMERO para que sea visible de inmediato
   createWindow();
 
-  // Configurar auto-actualizaciones (solo en producción)
+  // Configurar auto-actualizaciones (solo en producciÃ³n)
   configurarAutoUpdater();
 
   // Inicializar servicio OCR EN BACKGROUND (no bloquear la ventana)
@@ -890,27 +890,27 @@ app.whenReady().then(async () => {
     console.error('Error al inicializar OCR (continuando sin OCR):', err.message);
   });
 
-  // Iniciar verificación automática de documentos nuevos
+  // Iniciar verificaciÃ³n automÃ¡tica de documentos nuevos
   if (verificacionAutomaticaActiva) {
     timerVerificacion = setInterval(() => {
       if (verificacionAutomaticaActiva) {
         verificarDocumentosNuevos().catch(err => {
-          console.error('Error en la verificación automática:', err);
+          console.error('Error en la verificaciÃ³n automÃ¡tica:', err);
         });
       }
     }, INTERVALO_VERIFICACION);
 
-    console.log(`Verificación automática iniciada. Intervalo: ${INTERVALO_VERIFICACION / 1000} segundos`);
+    console.log(`VerificaciÃ³n automÃ¡tica iniciada. Intervalo: ${INTERVALO_VERIFICACION / 1000} segundos`);
   }
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) {
-      console.log('Activando aplicación, creando nueva ventana...');
+      console.log('Activando aplicaciÃ³n, creando nueva ventana...');
       createWindow();
     }
   });
 }).catch(err => {
-  console.error('Error al iniciar la aplicación:', err);
+  console.error('Error al iniciar la aplicaciÃ³n:', err);
 });
 
 app.on('window-all-closed', async function () {
@@ -922,20 +922,20 @@ app.on('window-all-closed', async function () {
   // Forzar guardado de la base de datos antes de salir
   database.forzarGuardado();
 
-  // Detener el timer de verificación automática
+  // Detener el timer de verificaciÃ³n automÃ¡tica
   if (timerVerificacion) {
     clearInterval(timerVerificacion);
     timerVerificacion = null;
-    console.log('Verificación automática detenida.');
+    console.log('VerificaciÃ³n automÃ¡tica detenida.');
   }
 
   if (process.platform !== 'darwin') {
-    console.log('Cerrando la aplicación');
+    console.log('Cerrando la aplicaciÃ³n');
     app.quit();
   }
 });
 
-// Validar que una ruta sea un archivo de documento legítimo (no ejecutable ni ruta sospechosa)
+// Validar que una ruta sea un archivo de documento legÃ­timo (no ejecutable ni ruta sospechosa)
 function esRutaSegura(ruta) {
   if (!ruta || typeof ruta !== 'string') return false;
   const normalized = path.resolve(ruta);
@@ -949,7 +949,7 @@ function esTextoSeguro(texto, maxLen = 500) {
   return typeof texto === 'string' && texto.length <= maxLen;
 }
 
-// Validar objeto de criterios de búsqueda
+// Validar objeto de criterios de bÃºsqueda
 function validarCriterios(criterios) {
   if (!criterios || typeof criterios !== 'object') return {};
   return {
@@ -966,15 +966,15 @@ function validarCriterios(criterios) {
 // Manejadores IPC existentes
 ipcMain.handle('buscar-documentos', async (event, criterios) => {
   const criteriosValidados = validarCriterios(criterios);
-  console.log('Búsqueda solicitada con criterios:', criteriosValidados);
+  console.log('BÃºsqueda solicitada con criterios:', criteriosValidados);
 
   try {
-    // Utilizar la base de datos para buscar documentos (con paginación)
+    // Utilizar la base de datos para buscar documentos (con paginaciÃ³n)
     const resultado = await database.buscarDocumentos(criteriosValidados);
-    console.log(`Se encontraron ${resultado.total} resultados (página ${resultado.page}/${resultado.totalPages}).`);
+    console.log(`Se encontraron ${resultado.total} resultados (pÃ¡gina ${resultado.page}/${resultado.totalPages}).`);
     return resultado;
   } catch (error) {
-    console.error('Error durante la búsqueda:', error);
+    console.error('Error durante la bÃºsqueda:', error);
     return { resultados: [], total: 0, page: 1, pageSize: 50, totalPages: 0 };
   }
 });
@@ -989,8 +989,8 @@ ipcMain.handle('abrir-documento', async (event, ruta) => {
     }
     // Verificar si el archivo existe
     if (fs.existsSync(ruta)) {
-      console.log('El archivo existe, abriéndolo...');
-      // Abrir el documento con la aplicación predeterminada
+      console.log('El archivo existe, abriÃ©ndolo...');
+      // Abrir el documento con la aplicaciÃ³n predeterminada
       await shell.openPath(ruta);
       return { success: true };
     } else {
@@ -1006,7 +1006,7 @@ ipcMain.handle('abrir-documento', async (event, ruta) => {
 // INDEXAR CARPETA COMPLETA (ACTUALIZADA para incluir Word)
 ipcMain.handle('indexar-carpeta', async (event) => {
   try {
-    console.log('Iniciando indexación completa de documentos...');
+    console.log('Iniciando indexaciÃ³n completa de documentos...');
 
     // Obtener lista de documentos desde el drive/sistema de archivos
     const documentos = await driveApi.listarTodosLosDocumentos();
@@ -1015,7 +1015,7 @@ ipcMain.handle('indexar-carpeta', async (event) => {
     let indexados = 0;
     let errores = 0;
 
-    // Procesar cada documento válido
+    // Procesar cada documento vÃ¡lido
     for (const doc of documentos) {
       try {
         // Verificar si ya existe en la base de datos
@@ -1025,22 +1025,22 @@ ipcMain.handle('indexar-carpeta', async (event) => {
           continue;
         }
 
-        // Verificar si es un archivo válido (PDF o Word)
+        // Verificar si es un archivo vÃ¡lido (PDF o Word)
         if (esArchivoValido(doc.ruta)) {
           // Extraer texto y asunto del documento
           console.log(`Procesando documento: ${doc.nombre}`);
 
-          // Establecer un tiempo límite para procesar cada documento
+          // Establecer un tiempo lÃ­mite para procesar cada documento
           const infoPromise = procesarArchivo(doc.ruta);
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Tiempo límite excedido al procesar documento')), 120000);
+            setTimeout(() => reject(new Error('Tiempo lÃ­mite excedido al procesar documento')), 120000);
           });
 
           let documentoInfo;
           try {
             documentoInfo = await Promise.race([infoPromise, timeoutPromise]);
           } catch (docError) {
-            console.error(`Error o tiempo límite al procesar documento ${doc.nombre}: ${docError.message}`);
+            console.error(`Error o tiempo lÃ­mite al procesar documento ${doc.nombre}: ${docError.message}`);
             documentoInfo = { texto: '', asunto: 'Error al procesar' };
           }
 
@@ -1067,11 +1067,11 @@ ipcMain.handle('indexar-carpeta', async (event) => {
       }
     }
 
-    const mensaje = `Indexación completada. ${indexados} documentos indexados. ${errores} errores.`;
+    const mensaje = `IndexaciÃ³n completada. ${indexados} documentos indexados. ${errores} errores.`;
     console.log(mensaje);
     return { success: true, message: mensaje };
   } catch (error) {
-    console.error('Error durante la indexación:', error);
+    console.error('Error durante la indexaciÃ³n:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1080,7 +1080,7 @@ ipcMain.handle('indexar-carpeta', async (event) => {
 
 ipcMain.handle('seleccionar-carpeta', async (event) => {
   try {
-    console.log('Abriendo diálogo de selección de carpeta...');
+    console.log('Abriendo diÃ¡logo de selecciÃ³n de carpeta...');
 
     const resultado = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
@@ -1089,7 +1089,7 @@ ipcMain.handle('seleccionar-carpeta', async (event) => {
     });
 
     if (resultado.canceled) {
-      console.log('Selección de carpeta cancelada por el usuario');
+      console.log('SelecciÃ³n de carpeta cancelada por el usuario');
       return { success: false, canceled: true };
     }
 
@@ -1101,7 +1101,7 @@ ipcMain.handle('seleccionar-carpeta', async (event) => {
       path: rutaSeleccionada
     };
   } catch (error) {
-    console.error('Error al mostrar diálogo de selección de carpeta:', error);
+    console.error('Error al mostrar diÃ¡logo de selecciÃ³n de carpeta:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1109,26 +1109,26 @@ ipcMain.handle('seleccionar-carpeta', async (event) => {
 ipcMain.handle('indexar-carpeta-especifica', async (event, { rutaCarpeta, filtros }) => {
   try {
     if (!rutaCarpeta || typeof rutaCarpeta !== 'string') {
-      return { success: false, error: 'Ruta de carpeta inválida' };
+      return { success: false, error: 'Ruta de carpeta invÃ¡lida' };
     }
-    console.log(`Solicitud de indexación de carpeta específica: ${rutaCarpeta}`);
+    console.log(`Solicitud de indexaciÃ³n de carpeta especÃ­fica: ${rutaCarpeta}`);
     const resultado = await indexarCarpetaEspecificaConProgreso(rutaCarpeta, filtros);
     return resultado;
   } catch (error) {
-    console.error('Error durante la indexación de carpeta específica:', error);
+    console.error('Error durante la indexaciÃ³n de carpeta especÃ­fica:', error);
     return { success: false, error: error.message };
   }
 });
 
 ipcMain.handle('sincronizar-drive', async (event) => {
-  console.log('Sincronización con Google Drive solicitada');
-  return { success: true, message: 'Función de sincronización aún no implementada' };
+  console.log('SincronizaciÃ³n con Google Drive solicitada');
+  return { success: true, message: 'FunciÃ³n de sincronizaciÃ³n aÃºn no implementada' };
 });
 
-// Manejadores IPC para la detección de documentos nuevos
+// Manejadores IPC para la detecciÃ³n de documentos nuevos
 ipcMain.handle('verificar-documentos-nuevos', async (event) => {
   try {
-    console.log('Verificación manual de documentos nuevos solicitada');
+    console.log('VerificaciÃ³n manual de documentos nuevos solicitada');
     const documentosNuevos = await verificarDocumentosNuevos();
     return {
       success: true,
@@ -1136,7 +1136,7 @@ ipcMain.handle('verificar-documentos-nuevos', async (event) => {
       cantidad: documentosNuevos.length
     };
   } catch (error) {
-    console.error('Error durante la verificación manual:', error);
+    console.error('Error durante la verificaciÃ³n manual:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1144,10 +1144,10 @@ ipcMain.handle('verificar-documentos-nuevos', async (event) => {
 ipcMain.handle('procesar-documento-nuevo', async (event, { documento, asunto }) => {
   try {
     if (!documento || !documento.ruta || !documento.nombre) {
-      return { success: false, error: 'Datos del documento inválidos' };
+      return { success: false, error: 'Datos del documento invÃ¡lidos' };
     }
     if (asunto && !esTextoSeguro(asunto, 500)) {
-      return { success: false, error: 'Asunto demasiado largo (máx 500 caracteres)' };
+      return { success: false, error: 'Asunto demasiado largo (mÃ¡x 500 caracteres)' };
     }
     console.log(`Procesando documento nuevo: ${documento.nombre} con asunto: "${asunto}"`);
     const resultado = await procesarDocumentoNuevo(documento, asunto);
@@ -1160,24 +1160,24 @@ ipcMain.handle('procesar-documento-nuevo', async (event, { documento, asunto }) 
 
 ipcMain.handle('configurar-verificacion-automatica', async (event, { activa }) => {
   verificacionAutomaticaActiva = !!activa; // Forzar booleano
-  console.log(`Verificación automática ${verificacionAutomaticaActiva ? 'activada' : 'desactivada'}`);
+  console.log(`VerificaciÃ³n automÃ¡tica ${verificacionAutomaticaActiva ? 'activada' : 'desactivada'}`);
 
-  // Si se está activando y no hay timer, iniciarlo
+  // Si se estÃ¡ activando y no hay timer, iniciarlo
   if (verificacionAutomaticaActiva && !timerVerificacion) {
     timerVerificacion = setInterval(() => {
       if (verificacionAutomaticaActiva) {
         verificarDocumentosNuevos().catch(err => {
-          console.error('Error en la verificación automática:', err);
+          console.error('Error en la verificaciÃ³n automÃ¡tica:', err);
         });
       }
     }, INTERVALO_VERIFICACION);
-    console.log('Timer de verificación iniciado');
+    console.log('Timer de verificaciÃ³n iniciado');
   }
-  // Si se está desactivando y hay timer, detenerlo
+  // Si se estÃ¡ desactivando y hay timer, detenerlo
   else if (!verificacionAutomaticaActiva && timerVerificacion) {
     clearInterval(timerVerificacion);
     timerVerificacion = null;
-    console.log('Timer de verificación detenido');
+    console.log('Timer de verificaciÃ³n detenido');
   }
 
   return { success: true, activa: verificacionAutomaticaActiva };
@@ -1187,12 +1187,12 @@ ipcMain.handle('configurar-verificacion-automatica', async (event, { activa }) =
 ipcMain.handle('actualizar-asunto-documento', async (event, { ruta, nuevoAsunto }) => {
   try {
     if (!ruta || typeof ruta !== 'string') {
-      return { success: false, error: 'Ruta inválida' };
+      return { success: false, error: 'Ruta invÃ¡lida' };
     }
     if (!esTextoSeguro(nuevoAsunto, 500)) {
-      return { success: false, error: 'Asunto inválido o demasiado largo (máx 500 caracteres)' };
+      return { success: false, error: 'Asunto invÃ¡lido o demasiado largo (mÃ¡x 500 caracteres)' };
     }
-    console.log(`Solicitud de actualización de asunto para: ${ruta}`);
+    console.log(`Solicitud de actualizaciÃ³n de asunto para: ${ruta}`);
 
     const resultado = await database.actualizarAsuntoDocumento(ruta, nuevoAsunto.trim());
     console.log('Asunto actualizado correctamente en la base de datos');
@@ -1211,17 +1211,17 @@ ipcMain.handle('actualizar-asunto-documento', async (event, { ruta, nuevoAsunto 
   }
 });
 
-// NUEVOS MANEJADORES IPC PARA CONTROL DE INDEXACIÓN
+// NUEVOS MANEJADORES IPC PARA CONTROL DE INDEXACIÃ“N
 ipcMain.handle('pausar-indexacion', async (event) => {
   try {
     if (indexacionEnProgreso && !indexacionPausada) {
       indexacionPausada = true;
-      console.log('Indexación pausada por el usuario');
-      return { success: true, message: 'Indexación pausada' };
+      console.log('IndexaciÃ³n pausada por el usuario');
+      return { success: true, message: 'IndexaciÃ³n pausada' };
     }
-    return { success: false, message: 'No hay indexación en progreso o ya está pausada' };
+    return { success: false, message: 'No hay indexaciÃ³n en progreso o ya estÃ¡ pausada' };
   } catch (error) {
-    console.error('Error al pausar indexación:', error);
+    console.error('Error al pausar indexaciÃ³n:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1230,12 +1230,12 @@ ipcMain.handle('reanudar-indexacion', async (event) => {
   try {
     if (indexacionEnProgreso && indexacionPausada) {
       indexacionPausada = false;
-      console.log('Indexación reanudada por el usuario');
-      return { success: true, message: 'Indexación reanudada' };
+      console.log('IndexaciÃ³n reanudada por el usuario');
+      return { success: true, message: 'IndexaciÃ³n reanudada' };
     }
-    return { success: false, message: 'No hay indexación pausada para reanudar' };
+    return { success: false, message: 'No hay indexaciÃ³n pausada para reanudar' };
   } catch (error) {
-    console.error('Error al reanudar indexación:', error);
+    console.error('Error al reanudar indexaciÃ³n:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1244,20 +1244,20 @@ ipcMain.handle('cancelar-indexacion', async (event) => {
   try {
     if (indexacionEnProgreso) {
       indexacionCancelada = true;
-      console.log('Indexación cancelada por el usuario');
-      return { success: true, message: 'Indexación cancelada' };
+      console.log('IndexaciÃ³n cancelada por el usuario');
+      return { success: true, message: 'IndexaciÃ³n cancelada' };
     }
-    return { success: false, message: 'No hay indexación en progreso para cancelar' };
+    return { success: false, message: 'No hay indexaciÃ³n en progreso para cancelar' };
   } catch (error) {
-    console.error('Error al cancelar indexación:', error);
+    console.error('Error al cancelar indexaciÃ³n:', error);
     return { success: false, error: error.message };
   }
 });
 
-// NUEVOS MANEJADORES PARA SELECCIÓN DE ARCHIVOS
+// NUEVOS MANEJADORES PARA SELECCIÃ“N DE ARCHIVOS
 ipcMain.handle('seleccionar-archivos', async (event) => {
   try {
-    console.log('Abriendo diálogo de selección de archivos...');
+    console.log('Abriendo diÃ¡logo de selecciÃ³n de archivos...');
 
     const resultado = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile', 'multiSelections'],
@@ -1269,7 +1269,7 @@ ipcMain.handle('seleccionar-archivos', async (event) => {
     });
 
     if (resultado.canceled) {
-      console.log('Selección de archivos cancelada por el usuario');
+      console.log('SelecciÃ³n de archivos cancelada por el usuario');
       return { success: false, canceled: true };
     }
 
@@ -1281,7 +1281,7 @@ ipcMain.handle('seleccionar-archivos', async (event) => {
       files: archivosSeleccionados
     };
   } catch (error) {
-    console.error('Error al mostrar diálogo de selección de archivos:', error);
+    console.error('Error al mostrar diÃ¡logo de selecciÃ³n de archivos:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1289,11 +1289,11 @@ ipcMain.handle('seleccionar-archivos', async (event) => {
 ipcMain.handle('indexar-archivos-seleccionados', async (event, { archivos: archivosPaths, filtros }) => {
   try {
     if (!Array.isArray(archivosPaths)) {
-      return { success: false, error: 'Datos inválidos' };
+      return { success: false, error: 'Datos invÃ¡lidos' };
     }
-    // Filtrar solo archivos con extensión permitida
+    // Filtrar solo archivos con extensiÃ³n permitida
     const archivosSeguras = archivosPaths.filter(r => esRutaSegura(r));
-    console.log(`Solicitud de indexación de ${archivosSeguras.length} archivos válidos (de ${archivosPaths.length})`);
+    console.log(`Solicitud de indexaciÃ³n de ${archivosSeguras.length} archivos vÃ¡lidos (de ${archivosPaths.length})`);
 
     // Mapear paths a objetos de documento
     const documentos = archivosSeguras.map(rutaCompleta => {
@@ -1324,9 +1324,9 @@ ipcMain.handle('indexar-archivos-seleccionados', async (event, { archivos: archi
         fecha: stats.mtime.toISOString().split('T')[0],
         extension: extension
       };
-    }).filter(doc => doc !== null); // Filtrar nulos si algún archivo fue borrado
+    }).filter(doc => doc !== null); // Filtrar nulos si algÃºn archivo fue borrado
 
-    // Iniciar indexación global (usa las mismas variables de control)
+    // Iniciar indexaciÃ³n global (usa las mismas variables de control)
     indexacionEnProgreso = true;
     indexacionPausada = false;
     indexacionCancelada = false;
@@ -1334,7 +1334,7 @@ ipcMain.handle('indexar-archivos-seleccionados', async (event, { archivos: archi
     const resultado = await procesarListaDeDocumentos(documentos);
     return resultado;
   } catch (error) {
-    console.error('Error durante la indexación de archivos específicos:', error);
+    console.error('Error durante la indexaciÃ³n de archivos especÃ­ficos:', error);
     return { success: false, error: error.message };
   }
 });
@@ -1373,7 +1373,7 @@ ipcMain.handle('descargar-documento', async (event, rutaOrigen) => {
     const extension = path.extname(rutaOrigen);
     const nombreArchivo = path.basename(rutaOrigen);
 
-    // Mostrar diálogo de guardar
+    // Mostrar diÃ¡logo de guardar
     const { filePath } = await dialog.showSaveDialog(mainWindow, {
       title: 'Guardar documento',
       defaultPath: nombreArchivo,
@@ -1398,11 +1398,11 @@ ipcMain.handle('descargar-documento', async (event, rutaOrigen) => {
 ipcMain.handle('descargar-varios-documentos', async (event, rutas) => {
   try {
     if (!Array.isArray(rutas)) {
-      return { success: false, error: 'Datos inválidos' };
+      return { success: false, error: 'Datos invÃ¡lidos' };
     }
     // Filtrar solo rutas seguras y existentes
     const archivosValidos = rutas.filter(r => esRutaSegura(r) && fs.existsSync(r));
-    console.log(`Solicitud de descarga masiva: ${archivosValidos.length} de ${rutas.length} archivos válidos`);
+    console.log(`Solicitud de descarga masiva: ${archivosValidos.length} de ${rutas.length} archivos vÃ¡lidos`);
     if (archivosValidos.length === 0) {
       return { success: false, error: 'Ninguno de los archivos seleccionados existe' };
     }
@@ -1411,7 +1411,7 @@ ipcMain.handle('descargar-varios-documentos', async (event, rutas) => {
     const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
       title: 'Seleccionar carpeta de destino',
       properties: ['openDirectory', 'createDirectory'],
-      buttonLabel: 'Descargar aquí'
+      buttonLabel: 'Descargar aquÃ­'
     });
 
     if (canceled || filePaths.length === 0) {
@@ -1458,7 +1458,7 @@ ipcMain.handle('descargar-varios-documentos', async (event, rutas) => {
   }
 });
 
-// ═══════════════ ENTERPRISE IPC HANDLERS ═══════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ENTERPRISE IPC HANDLERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 ipcMain.handle('enterprise-get-config', async () => {
   return enterpriseConfig || null;
@@ -1467,13 +1467,13 @@ ipcMain.handle('enterprise-get-config', async () => {
 ipcMain.handle('enterprise-set-config', async (event, { dbPath }) => {
   try {
     if (!dbPath || typeof dbPath !== 'string' || dbPath.length > 1000) {
-      return { success: false, error: 'Ruta de base de datos inválida' };
+      return { success: false, error: 'Ruta de base de datos invÃ¡lida' };
     }
-    // Validar que la raíz de la ruta sea accesible (la carpeta KrawlDB se crea sola)
+    // Validar que la raÃ­z de la ruta sea accesible (la carpeta KrawlDB se crea sola)
     const parsedPath = require('path').parse(dbPath);
     const rootDir = parsedPath.root || require('path').dirname(dbPath);
     if (!fs.existsSync(rootDir)) {
-      return { success: false, error: 'Unidad no accesible: ' + rootDir + '. Verifica que Google Drive esté montado.' };
+      return { success: false, error: 'Unidad no accesible: ' + rootDir + '. Verifica que Google Drive estÃ© montado.' };
     }
     // Guardar config
     const newConfig = { dbPath };
@@ -1493,18 +1493,40 @@ ipcMain.handle('enterprise-set-config', async (event, { dbPath }) => {
 ipcMain.handle('enterprise-select-db-folder', async () => {
   try {
     const resultado = await dialog.showOpenDialog(mainWindow, {
-      title: 'Seleccionar carpeta para la base de datos compartida',
+      title: 'Seleccionar base de datos compartida (documentos.sqlite)',
+      properties: ['openFile'],
+      buttonLabel: 'Seleccionar',
+      filters: [
+        { name: 'Base de datos Krawl', extensions: ['sqlite'] },
+        { name: 'Todos los archivos', extensions: ['*'] }
+      ]
+    });
+    if (resultado.canceled || resultado.filePaths.length === 0) {
+      return { success: false, canceled: true };
+    }
+    const dbPath = resultado.filePaths[0];
+    return { success: true, dbPath };
+  } catch (error) {
+    console.error('Error en enterprise-select-db-folder:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('enterprise-create-db', async () => {
+  try {
+    const resultado = await dialog.showOpenDialog(mainWindow, {
+      title: 'Seleccionar carpeta donde crear la base de datos compartida',
       properties: ['openDirectory', 'createDirectory'],
-      buttonLabel: 'Seleccionar carpeta'
+      buttonLabel: 'Crear aqui'
     });
     if (resultado.canceled || resultado.filePaths.length === 0) {
       return { success: false, canceled: true };
     }
     const carpeta = resultado.filePaths[0];
-    const dbPathSugerido = require('path').join(carpeta, 'KrawlDB', 'documentos.sqlite');
-    return { success: true, folder: carpeta, dbPath: dbPathSugerido };
+    const dbPath = require('path').join(carpeta, 'documentos.sqlite');
+    return { success: true, dbPath };
   } catch (error) {
-    console.error('Error en enterprise-select-db-folder:', error);
+    console.error('Error en enterprise-create-db:', error);
     return { success: false, error: error.message };
   }
 });
