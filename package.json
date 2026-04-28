@@ -1,6 +1,6 @@
 {
     "name": "krawl-enterprise",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Krawl Enterprise - Gestor de documentos compartido para equipos",
     "main": "main.js",
     "scripts": {

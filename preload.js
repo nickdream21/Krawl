@@ -1,4 +1,4 @@
-﻿ï»¿const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
 // Exponer funciones seguras al proceso de renderizado
 contextBridge.exposeInMainWorld('electronAPI', {

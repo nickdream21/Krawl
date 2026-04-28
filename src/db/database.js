@@ -1,4 +1,4 @@
-﻿const initSqlJs = require('sql.js');
+const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
