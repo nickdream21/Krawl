@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -10,10 +10,10 @@
 
 <body>
   <div class="container">
-    <!-- Banner de actualizaciÃ³n (oculto por defecto) -->
+    <!-- Banner de actualización (oculto por defecto) -->
     <div id="update-banner" class="update-banner hidden">
       <div class="update-content">
-        <span id="update-message">Nueva versiÃ³n disponible</span>
+        <span id="update-message">Nueva versión disponible</span>
         <div class="update-actions">
           <button id="update-action-btn" class="update-btn">Descargar</button>
           <button id="update-dismiss-btn" class="update-dismiss">&times;</button>
@@ -34,14 +34,14 @@
     </header>
 
     <div class="indexing-panel">
-      <h3>ConfiguraciÃ³n de IndexaciÃ³n</h3>
+      <h3>Configuración de Indexación</h3>
       <div class="indexing-form">
         <div class="selection-mode-group">
           <label class="radio-label">
             <input type="radio" name="indexingMode" value="folder" checked> Carpeta Completa
           </label>
           <label class="radio-label">
-            <input type="radio" name="indexingMode" value="files"> Archivos EspecÃ­ficos
+            <input type="radio" name="indexingMode" value="files"> Archivos Específicos
           </label>
         </div>
 
@@ -61,7 +61,7 @@
             <option value="pdf">Solo PDF</option>
             <option value="word">Solo Word (.doc, .docx)</option>
             <option value="excel">Solo Excel (.xls, .xlsx)</option>
-            <option value="image">Solo ImÃ¡genes (.jpg, .png, .jpeg)</option>
+            <option value="image">Solo Imágenes (.jpg, .png, .jpeg)</option>
           </select>
         </div>
 
@@ -83,8 +83,8 @@
       </div>
     </div>
 
-    <!-- Modal de Progreso de IndexaciÃ³n -->
-    <!-- SecciÃ³n de Progreso Integrada (reemplaza el modal) -->
+    <!-- Modal de Progreso de Indexación -->
+    <!-- Sección de Progreso Integrada (reemplaza el modal) -->
     <div id="progress-section" class="progress-panel hidden">
       <div class="progress-header-inline">
         <h3>ðŸ—‚ï¸ Indexando Documentos</h3>
@@ -113,7 +113,7 @@
         </div>
         <div class="counter-item existing">
           <div class="counter-number" id="counter-existing">0</div>
-          <div class="counter-label">YA EXISTÃAN</div>
+          <div class="counter-label">YA EXISTÍAN</div>
         </div>
         <div class="counter-item error">
           <div class="counter-number" id="counter-errors">0</div>
@@ -149,7 +149,7 @@
           <span class="errors-arrow">â–¼</span>
         </div>
         <div id="errors-content" class="errors-content hidden">
-          <!-- Los errores se agregarÃ¡n aquÃ­ dinÃ¡micamente -->
+          <!-- Los errores se agregarán aquí dinámicamente -->
         </div>
       </div>
 
@@ -165,11 +165,11 @@
     </div>
 
     <div class="search-panel">
-      <h3>BÃºsqueda de Documentos</h3>
+      <h3>Búsqueda de Documentos</h3>
       <div class="search-form">
         <div class="form-group">
           <label for="keyword">Palabra clave / Asunto:</label>
-          <input type="text" id="keyword" placeholder="TÃ©rminos de bÃºsqueda...">
+          <input type="text" id="keyword" placeholder="Términos de búsqueda...">
         </div>
 
         <div class="form-group">
@@ -191,7 +191,7 @@
             <option value="contrato">Contrato</option>
             <option value="memorando">Memorando</option>
             <option value="acta">Acta</option>
-            <option value="resoluciÃ³n">ResoluciÃ³n</option>
+            <option value="resolución">Resolución</option>
             <option value="otro">Otro</option>
           </select>
         </div>
@@ -199,8 +199,8 @@
         <div class="form-group">
           <label for="sortOrder">Ordenar por fecha:</label>
           <select id="sortOrder">
-            <option value="desc">MÃ¡s reciente primero</option>
-            <option value="asc">MÃ¡s antiguo primero</option>
+            <option value="desc">Más reciente primero</option>
+            <option value="asc">Más antiguo primero</option>
           </select>
         </div>
 

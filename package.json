@@ -1,123 +1,123 @@
-﻿{
-    "name":  "krawl-enterprise",
-    "version":  "1.0.0",
-    "description":  "Krawl Enterprise - Gestor de documentos compartido para equipos",
-    "main":  "main.js",
-    "scripts":  {
-                    "start":  "electron .",
-                    "dev":  "electron . --dev",
-                    "build":  "electron-builder",
-                    "build-win":  "electron-builder --win",
-                    "build-mac":  "electron-builder --mac",
-                    "build-linux":  "electron-builder --linux",
-                    "dist":  "electron-builder --publish=never",
-                    "publish":  "electron-builder --win --publish always",
-                    "release":  "electron-builder --win --publish always",
-                    "pack":  "electron-builder --dir",
-                    "test":  "echo \"No tests specified\" \u0026\u0026 exit 0",
-                    "build-enterprise":  "electron-builder --win --publish never",
-                    "release-enterprise":  "electron-builder --win --publish always"
-                },
-    "keywords":  [
-                     "electron",
-                     "documentos",
-                     "pdf",
-                     "ocr",
-                     "krawl"
-                 ],
-    "author":  "alembert",
-    "license":  "MIT",
-    "homepage":  ".",
-    "repository":  {
-                       "type":  "git",
-                       "url":  "https://github.com/nickdream21/Krawl"
-                   },
-    "devDependencies":  {
-                            "electron":  "^22.0.0",
-                            "electron-builder":  "^24.9.1"
-                        },
-    "dependencies":  {
-                         "compromise":  "^14.14.5",
-                         "electron-updater":  "^6.8.3",
-                         "lowdb":  "^1.0.0",
-                         "mammoth":  "^1.9.0",
-                         "mupdf":  "^1.27.0",
-                         "pdf-parse":  "^1.1.1",
-                         "pdfjs-dist":  "^5.4.530",
-                         "sql.js":  "^1.14.1",
-                         "tesseract.js":  "^7.0.0",
-                         "textract":  "^2.5.0",
-                         "xlsx":  "^0.18.5"
-                     },
-    "build":  {
-                  "appId":  "com.krawl.enterprise",
-                  "productName":  "Krawl Enterprise",
-                  "directories":  {
-                                      "output":  "dist"
-                                  },
-                  "files":  [
-                                "main.js",
-                                "preload.js",
-                                "package.json",
-                                "renderer/**/*",
-                                "src/**/*",
-                                "build/icon.png",
-                                "node_modules/**/*",
-                                "!node_modules/**/{test,tests,__tests__,docs,example,examples}/**",
-                                "!node_modules/**/*.md",
-                                "!**/*.map"
-                            ],
-                  "extraResources":  [
-                                         {
-                                             "from":  "data",
-                                             "to":  "data",
-                                             "filter":  [
-                                                            "**/*"
-                                                        ]
-                                         }
-                                     ],
-                  "publish":  {
-                                  "provider":  "github",
-                                  "owner":  "nickdream21",
-                                  "repo":  "Krawl",
-                                  "releaseType":  "release"
-                              },
-                  "win":  {
-                              "icon":  "build/icon.ico",
-                              "target":  [
-                                             {
-                                                 "target":  "nsis",
-                                                 "arch":  [
-                                                              "x64"
-                                                          ]
-                                             }
-                                         ],
-                              "requestedExecutionLevel":  "asInvoker",
-                              "signAndEditExecutable":  false,
-                              "executableName":  "Krawl Enterprise"
-                          },
-                  "nsis":  {
-                               "oneClick":  false,
-                               "perMachine":  false,
-                               "allowToChangeInstallationDirectory":  true,
-                               "createDesktopShortcut":  true,
-                               "createStartMenuShortcut":  true,
-                               "shortcutName":  "Krawl Enterprise",
-                               "uninstallDisplayName":  "Krawl Enterprise",
-                               "installerIcon":  "build/icon.ico"
-                           },
-                  "mac":  {
-                              "category":  "public.app-category.productivity"
-                          },
-                  "linux":  {
-                                "target":  [
-                                               {
-                                                   "target":  "AppImage",
-                                                   "arch":  [
-                                                                "x64"
-                                                            ]
-                                               }
-                                           ]
-                            }
-              }
+{
+    "name": "krawl-enterprise",
+    "version": "1.0.2",
+    "description": "Krawl Enterprise - Gestor de documentos compartido para equipos",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "dev": "electron . --dev",
+        "build": "electron-builder",
+        "build-win": "electron-builder --win",
+        "build-mac": "electron-builder --mac",
+        "build-linux": "electron-builder --linux",
+        "dist": "electron-builder --publish=never",
+        "publish": "electron-builder --win --publish always",
+        "release": "electron-builder --win --publish always",
+        "pack": "electron-builder --dir",
+        "test": "echo \"No tests specified\" && exit 0",
+        "build-enterprise": "electron-builder --win --publish never",
+        "release-enterprise": "electron-builder --win --publish always"
+    },
+    "keywords": [
+        "electron",
+        "documentos",
+        "pdf",
+        "ocr",
+        "krawl"
+    ],
+    "author": "alembert",
+    "license": "MIT",
+    "homepage": ".",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nickdream21/Krawl"
+    },
+    "devDependencies": {
+        "electron": "^22.0.0",
+        "electron-builder": "^24.9.1"
+    },
+    "dependencies": {
+        "compromise": "^14.14.5",
+        "electron-updater": "^6.8.3",
+        "lowdb": "^1.0.0",
+        "mammoth": "^1.9.0",
+        "mupdf": "^1.27.0",
+        "pdf-parse": "^1.1.1",
+        "pdfjs-dist": "^5.4.530",
+        "sql.js": "^1.14.1",
+        "tesseract.js": "^7.0.0",
+        "textract": "^2.5.0",
+        "xlsx": "^0.18.5"
+    },
+    "build": {
+        "appId": "com.krawl.enterprise",
+        "productName": "Krawl Enterprise",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "main.js",
+            "preload.js",
+            "package.json",
+            "renderer/**/*",
+            "src/**/*",
+            "build/icon.png",
+            "node_modules/**/*",
+            "!node_modules/**/{test,tests,__tests__,docs,example,examples}/**",
+            "!node_modules/**/*.md",
+            "!**/*.map"
+        ],
+        "extraResources": [
+            {
+                "from": "data",
+                "to": "data",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ],
+        "publish": {
+            "provider": "github",
+            "owner": "nickdream21",
+            "repo": "Krawl",
+            "releaseType": "release"
+        },
+        "win": {
+            "icon": "build/icon.ico",
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "requestedExecutionLevel": "asInvoker",
+            "signAndEditExecutable": false,
+            "executableName": "Krawl Enterprise"
+        },
+        "nsis": {
+            "oneClick": false,
+            "perMachine": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "Krawl Enterprise",
+            "uninstallDisplayName": "Krawl Enterprise",
+            "installerIcon": "build/icon.ico"
+        },
+        "mac": {
+            "category": "public.app-category.productivity"
+        },
+        "linux": {
+            "target": [
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        }
+    }
 }
