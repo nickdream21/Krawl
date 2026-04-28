@@ -3,38 +3,23 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-// Ruta a la base de datos en AppData del usuario
-const newDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Krawl');
-const oldDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Gestor-Documentos-Sullana');
-
-// Migrar datos del nombre anterior si existen
-if (fs.existsSync(oldDataPath) && !fs.existsSync(newDataPath)) {
-  fs.renameSync(oldDataPath, newDataPath);
-  console.log('Datos migrados de Gestor-Documentos-Sullana a Krawl');
-}
-
-const userDataPath = newDataPath;
-const sqlitePath = path.join(userDataPath, 'documentos.sqlite');
-const jsonPath = path.join(userDataPath, 'documentos.json');
-
-// Asegurar que el directorio exista
-if (!fs.existsSync(userDataPath)) {
-  fs.mkdirSync(userDataPath, { recursive: true });
-  console.log('Directorio de datos del usuario creado en:', userDataPath);
-}
+// Ruta legacy por defecto (modo single-user)
+const LEGACY_SQLITE_PATH = path.join(os.homedir(), 'AppData', 'Roaming', 'Krawl', 'documentos.sqlite');
+const LEGACY_JSON_PATH = path.join(os.homedir(), 'AppData', 'Roaming', 'Krawl', 'documentos.json');
 
 let db = null;
 let saveTimer = null;
+let _sqlitePath = null; // ruta activa; se setea en inicializar()
 const SAVE_DELAY = 2000; // 2 segundos de debounce para escrituras en lote
 
 // ═══════════════ FUNCIONES INTERNAS ═══════════════
 
 // Guardar base de datos a disco
 function guardarDB() {
-  if (!db) return;
+  if (!db || !_sqlitePath) return;
   try {
     const data = db.export();
-    fs.writeFileSync(sqlitePath, Buffer.from(data));
+    fs.writeFileSync(_sqlitePath, Buffer.from(data));
   } catch (err) {
     console.error('Error al guardar la base de datos:', err);
   }
@@ -55,8 +40,8 @@ function sanitizeFTSQuery(query) {
     .join(' ');
 }
 
-// Migrar datos desde LowDB (JSON) si existen
-function migrarDesdeLowDB() {
+// Migrar datos desde LowDB (JSON) si existen — solo en modo legacy
+function migrarDesdeLowDB(jsonPath) {
   if (!fs.existsSync(jsonPath)) return;
 
   try {
@@ -133,12 +118,32 @@ function reconstruirFTSSiNecesario() {
 
 module.exports = {
   // Inicializar la base de datos (llamar antes de cualquier operación)
-  inicializar: async () => {
+  inicializar: async (rutaDB) => {
+    const isLegacy = !rutaDB;
+    _sqlitePath = rutaDB || LEGACY_SQLITE_PATH;
+
+    // En modo legacy: migrar carpeta antigua si existe
+    if (isLegacy) {
+      const oldDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Gestor-Documentos-Sullana');
+      const newDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'Krawl');
+      if (fs.existsSync(oldDataPath) && !fs.existsSync(newDataPath)) {
+        fs.renameSync(oldDataPath, newDataPath);
+        console.log('Datos migrados de Gestor-Documentos-Sullana a Krawl');
+      }
+    }
+
+    // Asegurar que el directorio padre exista
+    const dir = path.dirname(_sqlitePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log('Directorio de base de datos creado en:', dir);
+    }
+
     const SQL = await initSqlJs();
 
     // Cargar base de datos existente o crear nueva
-    if (fs.existsSync(sqlitePath)) {
-      const buffer = fs.readFileSync(sqlitePath);
+    if (fs.existsSync(_sqlitePath)) {
+      const buffer = fs.readFileSync(_sqlitePath);
       db = new SQL.Database(buffer);
       console.log('Base de datos SQLite cargada desde disco');
     } else {
@@ -193,8 +198,10 @@ module.exports = {
       END
     `);
 
-    // Migrar datos existentes desde LowDB si hay
-    migrarDesdeLowDB();
+    // Migrar datos existentes desde LowDB solo en modo legacy
+    if (isLegacy) {
+      migrarDesdeLowDB(LEGACY_JSON_PATH);
+    }
 
     // Verificar que FTS esté sincronizado
     reconstruirFTSSiNecesario();

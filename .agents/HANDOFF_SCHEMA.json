@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Krawl Multi-Agent Handoff Protocol",
+  "description": "Contrato de comunicación entre el ORCHESTRATOR y los subagentes especializados.",
+  "definitions": {
+    "agent": {
+      "type": "string",
+      "enum": ["AGENT-DB", "AGENT-OCR", "AGENT-IPC", "AGENT-UI", "AGENT-BUILD"]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["feature", "bugfix", "refactor", "research"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "blocked", "needs_review", "in_progress", "pending"]
+    }
+  },
+  "oneOf": [
+    {
+      "title": "Handoff Request (Orchestrator -> Agent)",
+      "type": "object",
+      "required": ["task_id", "agent", "priority", "type", "context", "files", "acceptance"],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Identificador unico de la tarea, ej: 'fix-001'."
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Identificador de la sesion del orquestador."
+        },
+        "agent": { "$ref": "#/definitions/agent" },
+        "priority": { "$ref": "#/definitions/priority" },
+        "type": { "$ref": "#/definitions/type" },
+        "context": {
+          "type": "string",
+          "description": "Descripcion autocontenida. El subagente NO tiene acceso al historial del orquestador."
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Paths relativos al repo de archivos relevantes."
+        },
+        "acceptance": {
+          "type": "string",
+          "description": "Criterio verificable de completitud."
+        },
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "task_ids previos requeridos."
+        }
+      }
+    },
+    {
+      "title": "Handoff Response (Agent -> Orchestrator)",
+      "type": "object",
+      "required": ["task_id", "status", "files_modified", "summary", "side_effects"],
+      "properties": {
+        "task_id": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "files_modified": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": {
+          "type": "string",
+          "description": "Que cambio y por que."
+        },
+        "side_effects": {
+          "type": "string",
+          "description": "Impactos en otros agentes, o 'none'."
+        }
+      }
+    }
+  ]
+}

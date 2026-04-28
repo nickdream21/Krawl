@@ -11,6 +11,38 @@ const { detectarAsunto, determinarTipoDocumento } = require('./src/utils/doc-uti
 const driveApi = require('./src/drive/api');
 const ocrService = require('./src/ocr/ocr-service');
 
+// --- ENTERPRISE CONFIG ---
+const ENTERPRISE_CONFIG_PATH = require('path').join(
+  require('os').homedir(),
+  'AppData', 'Roaming', 'Krawl-Enterprise', 'config.json'
+);
+
+let enterpriseConfig = null;
+let enterpriseConnected = false;
+
+function leerConfigEnterprise() {
+  try {
+    if (!fs.existsSync(ENTERPRISE_CONFIG_PATH)) return null;
+    const raw = fs.readFileSync(ENTERPRISE_CONFIG_PATH, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error leyendo config enterprise:', e.message);
+    return null;
+  }
+}
+
+function guardarConfigEnterprise(config) {
+  try {
+    const dir = require('path').dirname(ENTERPRISE_CONFIG_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(ENTERPRISE_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error guardando config enterprise:', e.message);
+    throw e;
+  }
+}
+// -------------------------
+
 // VARIABLES GLOBALES PARA CONTROL DE INDEXACIÓN
 let indexacionEnProgreso = false;
 let indexacionPausada = false;
@@ -164,6 +196,21 @@ function createWindow() {
   // Confirmar cuando la página se ha cargado correctamente
   mainWindow.webContents.on('did-finish-load', () => {
     console.log('Página cargada correctamente');
+
+    // Enviar estado enterprise al renderer
+    if (!enterpriseConfig || !enterpriseConfig.dbPath) {
+      mainWindow.webContents.send('enterprise-config-needed', {});
+    } else if (!enterpriseConnected) {
+      mainWindow.webContents.send('enterprise-db-status', {
+        connected: false,
+        error: 'Ruta no accesible: ' + enterpriseConfig.dbPath
+      });
+    } else {
+      mainWindow.webContents.send('enterprise-db-status', {
+        connected: true,
+        path: enterpriseConfig.dbPath
+      });
+    }
   });
 
   // Detectar cuando la ventana se cierre
@@ -811,8 +858,19 @@ ipcMain.handle('get-app-version', () => {
 app.whenReady().then(async () => {
   console.log('Electron está listo, inicializando base de datos...');
 
-  // Inicializar SQLite antes de crear la ventana
-  await database.inicializar();
+  // Leer config enterprise ANTES de inicializar la DB
+  enterpriseConfig = leerConfigEnterprise();
+  if (enterpriseConfig && enterpriseConfig.dbPath && fs.existsSync(require('path').dirname(enterpriseConfig.dbPath))) {
+    console.log('Config enterprise encontrada, usando DB compartida:', enterpriseConfig.dbPath);
+    await database.inicializar(enterpriseConfig.dbPath);
+    enterpriseConnected = true;
+  } else {
+    if (enterpriseConfig && enterpriseConfig.dbPath) {
+      console.warn('Ruta enterprise no accesible, usando DB local de fallback:', enterpriseConfig.dbPath);
+      enterpriseConnected = false;
+    }
+    await database.inicializar();
+  }
   console.log('Base de datos SQLite inicializada.');
 
   // Crear ventana PRIMERO para que sea visible de inmediato
@@ -1394,4 +1452,65 @@ ipcMain.handle('descargar-varios-documentos', async (event, rutas) => {
     console.error('Error en descarga masiva:', error);
     return { success: false, error: error.message };
   }
+});
+
+// ═══════════════ ENTERPRISE IPC HANDLERS ═══════════════
+
+ipcMain.handle('enterprise-get-config', async () => {
+  return enterpriseConfig || null;
+});
+
+ipcMain.handle('enterprise-set-config', async (event, { dbPath }) => {
+  try {
+    if (!dbPath || typeof dbPath !== 'string' || dbPath.length > 1000) {
+      return { success: false, error: 'Ruta de base de datos inválida' };
+    }
+    // Validar que el directorio padre sea accesible
+    const parentDir = require('path').dirname(dbPath);
+    if (!fs.existsSync(parentDir)) {
+      return { success: false, error: 'Ruta no accesible: ' + parentDir };
+    }
+    // Guardar config
+    const newConfig = { dbPath };
+    guardarConfigEnterprise(newConfig);
+    enterpriseConfig = newConfig;
+    // Reiniciar DB con nueva ruta
+    await database.inicializar(dbPath);
+    enterpriseConnected = true;
+    console.log('Config enterprise guardada. DB reiniciada con:', dbPath);
+    return { success: true };
+  } catch (error) {
+    console.error('Error en enterprise-set-config:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('enterprise-select-db-folder', async () => {
+  try {
+    const resultado = await dialog.showOpenDialog(mainWindow, {
+      title: 'Seleccionar carpeta para la base de datos compartida',
+      properties: ['openDirectory', 'createDirectory'],
+      buttonLabel: 'Seleccionar carpeta'
+    });
+    if (resultado.canceled || resultado.filePaths.length === 0) {
+      return { success: false, canceled: true };
+    }
+    const carpeta = resultado.filePaths[0];
+    const dbPathSugerido = require('path').join(carpeta, 'KrawlDB', 'documentos.sqlite');
+    return { success: true, folder: carpeta, dbPath: dbPathSugerido };
+  } catch (error) {
+    console.error('Error en enterprise-select-db-folder:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('enterprise-db-status', async () => {
+  if (!enterpriseConfig || !enterpriseConfig.dbPath) {
+    return { connected: false, path: null };
+  }
+  return {
+    connected: enterpriseConnected,
+    path: enterpriseConnected ? enterpriseConfig.dbPath : null,
+    error: !enterpriseConnected ? ('Ruta no accesible: ' + enterpriseConfig.dbPath) : undefined
+  };
 });

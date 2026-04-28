@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Krawl</title>
+  <title>Krawl Enterprise</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <div class="container">
-    <!-- Banner de actualización (oculto por defecto) -->
+    <!-- Banner de actualizaciÃ³n (oculto por defecto) -->
     <div id="update-banner" class="update-banner hidden">
       <div class="update-content">
-        <span id="update-message">Nueva versión disponible</span>
+        <span id="update-message">Nueva versiÃ³n disponible</span>
         <div class="update-actions">
           <button id="update-action-btn" class="update-btn">Descargar</button>
           <button id="update-dismiss-btn" class="update-dismiss">&times;</button>
@@ -25,19 +25,23 @@
     </div>
 
     <header>
-      <h1>Krawl</h1>
+      <h1>Krawl Enterprise</h1>
       <span id="app-version" class="app-version"></span>
+      <div class="enterprise-status-group">
+        <span id="enterprise-db-indicator" class="db-indicator db-indicator--unknown" title="Verificando conexion..."></span>
+        <button id="enterprise-settings-btn" class="enterprise-settings-btn" title="Configuracion Enterprise">&#9881;</button>
+      </div>
     </header>
 
     <div class="indexing-panel">
-      <h3>Configuración de Indexación</h3>
+      <h3>ConfiguraciÃ³n de IndexaciÃ³n</h3>
       <div class="indexing-form">
         <div class="selection-mode-group">
           <label class="radio-label">
             <input type="radio" name="indexingMode" value="folder" checked> Carpeta Completa
           </label>
           <label class="radio-label">
-            <input type="radio" name="indexingMode" value="files"> Archivos Específicos
+            <input type="radio" name="indexingMode" value="files"> Archivos EspecÃ­ficos
           </label>
         </div>
 
@@ -57,7 +61,7 @@
             <option value="pdf">Solo PDF</option>
             <option value="word">Solo Word (.doc, .docx)</option>
             <option value="excel">Solo Excel (.xls, .xlsx)</option>
-            <option value="image">Solo Imágenes (.jpg, .png, .jpeg)</option>
+            <option value="image">Solo ImÃ¡genes (.jpg, .png, .jpeg)</option>
           </select>
         </div>
 
@@ -79,11 +83,11 @@
       </div>
     </div>
 
-    <!-- Modal de Progreso de Indexación -->
-    <!-- Sección de Progreso Integrada (reemplaza el modal) -->
+    <!-- Modal de Progreso de IndexaciÃ³n -->
+    <!-- SecciÃ³n de Progreso Integrada (reemplaza el modal) -->
     <div id="progress-section" class="progress-panel hidden">
       <div class="progress-header-inline">
-        <h3>🗂️ Indexando Documentos</h3>
+        <h3>ðŸ—‚ï¸ Indexando Documentos</h3>
         <button id="cancel-progress-btn" class="cancel-progress-btn">Cancelar</button>
       </div> <!-- Barra de Progreso Principal -->
       <div class="main-progress-bar">
@@ -109,7 +113,7 @@
         </div>
         <div class="counter-item existing">
           <div class="counter-number" id="counter-existing">0</div>
-          <div class="counter-label">YA EXISTÍAN</div>
+          <div class="counter-label">YA EXISTÃAN</div>
         </div>
         <div class="counter-item error">
           <div class="counter-number" id="counter-errors">0</div>
@@ -141,31 +145,31 @@
       <!-- Lista de Errores (colapsible) -->
       <div id="errors-container" class="errors-container hidden">
         <div class="errors-toggle" onclick="toggleProgressErrors()">
-          <span>⚠️ Ver errores (<span id="errors-count-display">0</span>)</span>
-          <span class="errors-arrow">▼</span>
+          <span>âš ï¸ Ver errores (<span id="errors-count-display">0</span>)</span>
+          <span class="errors-arrow">â–¼</span>
         </div>
         <div id="errors-content" class="errors-content hidden">
-          <!-- Los errores se agregarán aquí dinámicamente -->
+          <!-- Los errores se agregarÃ¡n aquÃ­ dinÃ¡micamente -->
         </div>
       </div>
 
       <!-- Controles Adicionales (Pausar/Reanudar) -->
       <div class="progress-controls-inline">
         <button id="pause-progress-btn" class="control-btn-inline pause">
-          ⏸️ Pausar
+          â¸ï¸ Pausar
         </button>
         <button id="resume-progress-btn" class="control-btn-inline resume hidden">
-          ▶️ Continuar
+          â–¶ï¸ Continuar
         </button>
       </div>
     </div>
 
     <div class="search-panel">
-      <h3>Búsqueda de Documentos</h3>
+      <h3>BÃºsqueda de Documentos</h3>
       <div class="search-form">
         <div class="form-group">
           <label for="keyword">Palabra clave / Asunto:</label>
-          <input type="text" id="keyword" placeholder="Términos de búsqueda...">
+          <input type="text" id="keyword" placeholder="TÃ©rminos de bÃºsqueda...">
         </div>
 
         <div class="form-group">
@@ -187,7 +191,7 @@
             <option value="contrato">Contrato</option>
             <option value="memorando">Memorando</option>
             <option value="acta">Acta</option>
-            <option value="resolución">Resolución</option>
+            <option value="resoluciÃ³n">ResoluciÃ³n</option>
             <option value="otro">Otro</option>
           </select>
         </div>
@@ -195,8 +199,8 @@
         <div class="form-group">
           <label for="sortOrder">Ordenar por fecha:</label>
           <select id="sortOrder">
-            <option value="desc">Más reciente primero</option>
-            <option value="asc">Más antiguo primero</option>
+            <option value="desc">MÃ¡s reciente primero</option>
+            <option value="asc">MÃ¡s antiguo primero</option>
           </select>
         </div>
 
@@ -218,6 +222,37 @@
 
 
 
+
+  <!-- Enterprise: Modal configuracion obligatoria -->
+  <div id="enterprise-setup-modal" class="enterprise-modal-overlay hidden">
+    <div class="enterprise-modal-card">
+      <h2 class="enterprise-modal-title">Configuracion de base de datos compartida</h2>
+      <p class="enterprise-modal-desc">Krawl Enterprise necesita conectarse a la base de datos compartida de tu empresa. Selecciona la carpeta de Google Drive donde se almacenara.</p>
+      <div class="enterprise-modal-field">
+        <input type="text" id="enterprise-db-path-input" class="enterprise-path-input" placeholder="Ninguna carpeta seleccionada" readonly>
+        <button id="enterprise-browse-btn" class="secondary-btn">Examinar...</button>
+      </div>
+      <p id="enterprise-setup-error" class="enterprise-error-msg"></p>
+      <div class="enterprise-modal-actions">
+        <button id="enterprise-connect-btn" class="primary-btn" disabled>Conectar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enterprise: Modal configuracion opcional -->
+  <div id="enterprise-config-modal" class="enterprise-modal-overlay hidden">
+    <div class="enterprise-modal-card">
+      <div class="enterprise-modal-header">
+        <h2 class="enterprise-modal-title">Configuracion Enterprise</h2>
+        <button id="enterprise-config-close-btn" class="enterprise-modal-close" title="Cerrar">&times;</button>
+      </div>
+      <p class="enterprise-modal-label">Ruta actual de la base de datos:</p>
+      <p id="enterprise-current-path" class="enterprise-current-path">No configurado</p>
+      <div class="enterprise-modal-actions">
+        <button id="enterprise-change-path-btn" class="secondary-btn">Cambiar ruta</button>
+      </div>
+    </div>
+  </div>
   <!-- Scripts -->
   <script src="script.js"></script>
 </body>

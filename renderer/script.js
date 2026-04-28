@@ -1147,3 +1147,115 @@ function showProgressSummary(data) {
     hideProgressSection();
   }, 10000);
 }
+
+// ═══════════════ ENTERPRISE CONFIG ═══════════════
+
+let enterpriseDbPath = null;
+
+// Escuchar cuando se necesita configuracion
+if (window.electronAPI.onEnterpriseConfigNeeded) {
+  window.electronAPI.onEnterpriseConfigNeeded(() => {
+    mostrarModalSetupEnterprise();
+  });
+}
+
+// Escuchar estado de DB
+if (window.electronAPI.onEnterpriseDbStatus) {
+  window.electronAPI.onEnterpriseDbStatus((status) => {
+    actualizarIndicadorDB(status);
+  });
+}
+
+function mostrarModalSetupEnterprise() {
+  const modal = document.getElementById('enterprise-setup-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function ocultarModalSetupEnterprise() {
+  const modal = document.getElementById('enterprise-setup-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function actualizarIndicadorDB(status) {
+  const indicator = document.getElementById('enterprise-db-indicator');
+  if (!indicator) return;
+  indicator.classList.remove('db-indicator--connected', 'db-indicator--disconnected', 'db-indicator--unknown');
+  if (status.connected) {
+    indicator.classList.add('db-indicator--connected');
+    indicator.title = 'Conectado: ' + status.path;
+    enterpriseDbPath = status.path;
+    ocultarModalSetupEnterprise();
+  } else {
+    indicator.classList.add('db-indicator--disconnected');
+    indicator.title = 'Sin conexion: ' + (status.error || 'Ruta no accesible');
+  }
+}
+
+// Boton examinar en setup modal
+const enterpriseBrowseBtn = document.getElementById('enterprise-browse-btn');
+if (enterpriseBrowseBtn) {
+  enterpriseBrowseBtn.addEventListener('click', async () => {
+    const result = await window.electronAPI.enterpriseSelectDbFolder();
+    if (result && result.success) {
+      const input = document.getElementById('enterprise-db-path-input');
+      if (input) input.value = result.path;
+      const connectBtn = document.getElementById('enterprise-connect-btn');
+      if (connectBtn) connectBtn.disabled = false;
+    }
+  });
+}
+
+// Boton conectar en setup modal
+const enterpriseConnectBtn = document.getElementById('enterprise-connect-btn');
+if (enterpriseConnectBtn) {
+  enterpriseConnectBtn.addEventListener('click', async () => {
+    const input = document.getElementById('enterprise-db-path-input');
+    const dbPath = input ? input.value : '';
+    if (!dbPath) return;
+
+    const errorEl = document.getElementById('enterprise-setup-error');
+    enterpriseConnectBtn.disabled = true;
+    enterpriseConnectBtn.textContent = 'Conectando...';
+
+    const result = await window.electronAPI.enterpriseSetConfig({ dbPath });
+    if (result && result.success) {
+      ocultarModalSetupEnterprise();
+    } else {
+      if (errorEl) errorEl.textContent = result && result.error ? result.error : 'Error al conectar';
+      enterpriseConnectBtn.disabled = false;
+      enterpriseConnectBtn.textContent = 'Conectar';
+    }
+  });
+}
+
+// Boton de configuracion en header
+const enterpriseSettingsBtn = document.getElementById('enterprise-settings-btn');
+if (enterpriseSettingsBtn) {
+  enterpriseSettingsBtn.addEventListener('click', () => {
+    const modal = document.getElementById('enterprise-config-modal');
+    if (modal) {
+      const pathEl = document.getElementById('enterprise-current-path');
+      if (pathEl) pathEl.textContent = enterpriseDbPath || 'No configurado';
+      modal.classList.remove('hidden');
+    }
+  });
+}
+
+// Boton cambiar ruta en config modal
+const enterpriseChangeBtn = document.getElementById('enterprise-change-path-btn');
+if (enterpriseChangeBtn) {
+  enterpriseChangeBtn.addEventListener('click', () => {
+    const m = document.getElementById('enterprise-config-modal');
+    if (m) m.classList.add('hidden');
+    mostrarModalSetupEnterprise();
+  });
+}
+
+// Boton cerrar config modal
+const enterpriseConfigCloseBtn = document.getElementById('enterprise-config-close-btn');
+if (enterpriseConfigCloseBtn) {
+  enterpriseConfigCloseBtn.addEventListener('click', () => {
+    const m = document.getElementById('enterprise-config-modal');
+    if (m) m.classList.add('hidden');
+  });
+}

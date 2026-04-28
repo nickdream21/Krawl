@@ -1,0 +1,70 @@
+{
+  "project": "Krawl",
+  "version": "1.0.5",
+  "last_updated": "2026-04-28T00:00:00Z",
+  "active_sprint": "Inicializacion del sistema multi-agente. Sin tareas en curso.",
+  "session_notes": [
+    "2026-04-28: Sistema multi-agente creado. ORCHESTRATOR + 5 subagentes definidos en .agents/."
+  ],
+  "tasks": [],
+  "known_bugs": [
+    {
+      "id": "fecha_dual_format",
+      "agents": ["AGENT-DB", "AGENT-IPC", "AGENT-OCR"],
+      "severity": "high",
+      "description": "La columna 'fecha' mezcla DD/MM/YYYY (driveApi legacy) y YYYY-MM-DD (indexador moderno). El filtro de fechas hace comparacion de strings y falla silenciosamente para legacy.",
+      "status": "open"
+    },
+    {
+      "id": "fts_partial_desync",
+      "agents": ["AGENT-DB"],
+      "severity": "medium",
+      "description": "reconstruirFTSSiNecesario() solo detecta ftsCount === 0. Una desync parcial produce falsos negativos en busquedas.",
+      "status": "open"
+    },
+    {
+      "id": "ocr_init_stuck",
+      "agents": ["AGENT-OCR", "AGENT-IPC"],
+      "severity": "high",
+      "description": "Si ocrService.inicializar() falla, initPromise queda rechazado y el guard 'if (initPromise) return initPromise' traba toda la sesion. OCR falla en silencio sin reintento ni notificacion al usuario.",
+      "status": "open"
+    },
+    {
+      "id": "driveapi_extensions_narrow",
+      "agents": ["AGENT-OCR"],
+      "severity": "medium",
+      "description": "driveApi.extensionesPermitidas solo lista [.pdf, .docx, .doc]. El canal legacy 'indexar-carpeta' silenciosamente excluye Excel e imagenes.",
+      "status": "open"
+    },
+    {
+      "id": "legacy_ipc_indexar_carpeta",
+      "agents": ["AGENT-IPC", "AGENT-OCR"],
+      "severity": "low",
+      "description": "El canal 'indexar-carpeta' apunta a un path Google Drive hardcoded en G:\\ que solo existio en la maquina de deploy original. Codigo muerto.",
+      "status": "open"
+    },
+    {
+      "id": "concurrent_indexing",
+      "agents": ["AGENT-IPC"],
+      "severity": "medium",
+      "description": "Las flags globales indexacionEnProgreso/Pausada/Cancelada no tienen mutex. Dos indexaciones concurrentes se interferirian.",
+      "status": "open"
+    },
+    {
+      "id": "triple_walk_duplication",
+      "agents": ["AGENT-IPC", "AGENT-OCR"],
+      "severity": "low",
+      "description": "Tres implementaciones duplicadas del walk recursivo de carpetas con comportamientos sutilmente distintos. DRY violation.",
+      "status": "open"
+    },
+    {
+      "id": "dead_deps",
+      "agents": ["AGENT-BUILD"],
+      "severity": "low",
+      "description": "pdfjs-dist nunca se importa (~5MB). lowdb solo se usa en migracion ya ejecutada. textract solo para .doc legacy y es un native addon pesado.",
+      "status": "open"
+    }
+  ],
+  "pending_features": [],
+  "completed_features": []
+}

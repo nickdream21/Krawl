@@ -75,5 +75,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const subscription = (event, data) => callback(data);
     ipcRenderer.on('update-downloaded', subscription);
     return () => ipcRenderer.removeListener('update-downloaded', subscription);
+  },
+
+  // ENTERPRISE
+  enterpriseGetConfig: () => ipcRenderer.invoke('enterprise-get-config'),
+  enterpriseSetConfig: (config) => ipcRenderer.invoke('enterprise-set-config', config),
+  enterpriseSelectDbFolder: () => ipcRenderer.invoke('enterprise-select-db-folder'),
+  enterpriseDbStatus: () => ipcRenderer.invoke('enterprise-db-status'),
+  onEnterpriseConfigNeeded: (callback) => {
+    const sub = (event, data) => callback(data);
+    ipcRenderer.on('enterprise-config-needed', sub);
+    return () => ipcRenderer.removeListener('enterprise-config-needed', sub);
+  },
+  onEnterpriseDbStatus: (callback) => {
+    const sub = (event, data) => callback(data);
+    ipcRenderer.on('enterprise-db-status', sub);
+    return () => ipcRenderer.removeListener('enterprise-db-status', sub);
   }
 });
