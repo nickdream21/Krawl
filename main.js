@@ -860,15 +860,19 @@ app.whenReady().then(async () => {
 
   // Leer config enterprise ANTES de inicializar la DB
   enterpriseConfig = leerConfigEnterprise();
-  if (enterpriseConfig && enterpriseConfig.dbPath && fs.existsSync(require('path').dirname(enterpriseConfig.dbPath))) {
-    console.log('Config enterprise encontrada, usando DB compartida:', enterpriseConfig.dbPath);
-    await database.inicializar(enterpriseConfig.dbPath);
-    enterpriseConnected = true;
-  } else {
-    if (enterpriseConfig && enterpriseConfig.dbPath) {
-      console.warn('Ruta enterprise no accesible, usando DB local de fallback:', enterpriseConfig.dbPath);
+  if (enterpriseConfig && enterpriseConfig.dbPath) {
+    const rootDir = require('path').parse(enterpriseConfig.dbPath).root || require('path').dirname(enterpriseConfig.dbPath);
+    const rootAccesible = fs.existsSync(rootDir);
+    if (rootAccesible) {
+      console.log('Config enterprise encontrada, usando DB compartida:', enterpriseConfig.dbPath);
+      await database.inicializar(enterpriseConfig.dbPath);
+      enterpriseConnected = true;
+    } else {
+      console.warn('Ruta enterprise no accesible (Drive no montado?), usando DB local de fallback:', enterpriseConfig.dbPath);
       enterpriseConnected = false;
+      await database.inicializar();
     }
+  } else {
     await database.inicializar();
   }
   console.log('Base de datos SQLite inicializada.');
@@ -1465,10 +1469,11 @@ ipcMain.handle('enterprise-set-config', async (event, { dbPath }) => {
     if (!dbPath || typeof dbPath !== 'string' || dbPath.length > 1000) {
       return { success: false, error: 'Ruta de base de datos inválida' };
     }
-    // Validar que el directorio padre sea accesible
-    const parentDir = require('path').dirname(dbPath);
-    if (!fs.existsSync(parentDir)) {
-      return { success: false, error: 'Ruta no accesible: ' + parentDir };
+    // Validar que la raíz de la ruta sea accesible (la carpeta KrawlDB se crea sola)
+    const parsedPath = require('path').parse(dbPath);
+    const rootDir = parsedPath.root || require('path').dirname(dbPath);
+    if (!fs.existsSync(rootDir)) {
+      return { success: false, error: 'Unidad no accesible: ' + rootDir + '. Verifica que Google Drive esté montado.' };
     }
     // Guardar config
     const newConfig = { dbPath };

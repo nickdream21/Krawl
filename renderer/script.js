@@ -1198,7 +1198,7 @@ if (enterpriseBrowseBtn) {
     const result = await window.electronAPI.enterpriseSelectDbFolder();
     if (result && result.success) {
       const input = document.getElementById('enterprise-db-path-input');
-      if (input) input.value = result.path;
+      if (input) input.value = result.dbPath;
       const connectBtn = document.getElementById('enterprise-connect-btn');
       if (connectBtn) connectBtn.disabled = false;
     }
