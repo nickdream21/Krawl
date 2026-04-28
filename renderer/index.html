@@ -227,11 +227,13 @@
   <div id="enterprise-setup-modal" class="enterprise-modal-overlay hidden">
     <div class="enterprise-modal-card">
       <h2 class="enterprise-modal-title">Configuracion de base de datos compartida</h2>
-      <p class="enterprise-modal-desc">Krawl Enterprise necesita conectarse a la base de datos compartida de tu empresa. Selecciona la carpeta de Google Drive donde se almacenara.</p>
+      <p class="enterprise-modal-desc">Selecciona la carpeta compartida de Google Drive donde todos los usuarios tienen acceso. Krawl creara automaticamente la subcarpeta <strong>KrawlDB</strong> dentro de ella.</p>
+      <p class="enterprise-modal-hint">Ejemplo: <em>Google Drive (G:) &rarr; Mi unidad &rarr; E&amp;CDN</em></p>
       <div class="enterprise-modal-field">
         <input type="text" id="enterprise-db-path-input" class="enterprise-path-input" placeholder="Ninguna carpeta seleccionada" readonly>
         <button id="enterprise-browse-btn" class="secondary-btn">Examinar...</button>
       </div>
+      <p id="enterprise-setup-preview" class="enterprise-preview-msg"></p>
       <p id="enterprise-setup-error" class="enterprise-error-msg"></p>
       <div class="enterprise-modal-actions">
         <button id="enterprise-connect-btn" class="primary-btn" disabled>Conectar</button>

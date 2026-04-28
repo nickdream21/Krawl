@@ -1199,6 +1199,8 @@ if (enterpriseBrowseBtn) {
     if (result && result.success) {
       const input = document.getElementById('enterprise-db-path-input');
       if (input) input.value = result.dbPath;
+      const preview = document.getElementById('enterprise-setup-preview');
+      if (preview) preview.textContent = 'La base de datos se guardara en: ' + result.dbPath;
       const connectBtn = document.getElementById('enterprise-connect-btn');
       if (connectBtn) connectBtn.disabled = false;
     }
