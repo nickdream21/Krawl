@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
   // Referencias a elementos del DOM
   const searchBtn = document.getElementById('searchBtn');
   const resetBtn = document.getElementById('resetBtn');
@@ -1178,6 +1178,14 @@ if (window.electronAPI.onEnterpriseConfigNeeded) {
 if (window.electronAPI.onEnterpriseDbStatus) {
   window.electronAPI.onEnterpriseDbStatus((status) => {
     actualizarIndicadorDB(status);
+  });
+}
+
+// Escuchar recarga automática de DB compartida (hot-reload enterprise)
+if (window.electronAPI.onEnterpriseDbReloaded) {
+  window.electronAPI.onEnterpriseDbReloaded(() => {
+    mostrarNotificacion('🔄 Base de datos actualizada por otro usuario', 'info');
+    buscarDocumentos(1);
   });
 }
 

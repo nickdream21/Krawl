@@ -1,4 +1,4 @@
-ï»¿const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+﻿ï»¿const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -876,6 +876,20 @@ app.whenReady().then(async () => {
     await database.inicializar();
   }
   console.log('Base de datos SQLite inicializada.');
+  // Modo enterprise: iniciar watcher de cambios externos
+  if (enterpriseConfig && enterpriseConfig.dbPath && enterpriseConnected) {
+    database.iniciarWatchEnterprise(() => {
+      // No recargar si hay indexación en progreso (evita corrupción de iteradores)
+      if (indexacionEnProgreso) {
+        console.log('[Enterprise] Recarga de BD diferida: indexación en progreso');
+        return;
+      }
+      // Notificar al renderer que la DB se recargó
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('enterprise-db-reloaded');
+      }
+    });
+  }
 
   // Crear ventana PRIMERO para que sea visible de inmediato
   createWindow();
@@ -914,7 +928,10 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', async function () {
-  console.log('Todas las ventanas cerradas');
+  console.log('Todas las ventanas cerradas')
+
+  // Detener watcher enterprise si está activo
+  database.detenerWatchEnterprise();
 
   // Terminar worker OCR
   await ocrService.terminar();
@@ -1482,6 +1499,14 @@ ipcMain.handle('enterprise-set-config', async (event, { dbPath }) => {
     // Reiniciar DB con nueva ruta
     await database.inicializar(dbPath);
     enterpriseConnected = true;
+    // Reiniciar watcher con la nueva ruta
+    database.detenerWatchEnterprise();
+    database.iniciarWatchEnterprise(() => {
+      if (indexacionEnProgreso) return;
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('enterprise-db-reloaded');
+      }
+    });
     console.log('Config enterprise guardada. DB reiniciada con:', dbPath);
     return { success: true };
   } catch (error) {
@@ -1541,3 +1566,5 @@ ipcMain.handle('enterprise-db-status', async () => {
     error: !enterpriseConnected ? ('Ruta no accesible: ' + enterpriseConfig.dbPath) : undefined
   };
 });
+
+

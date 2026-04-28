@@ -1,4 +1,4 @@
-ï»¿const { contextBridge, ipcRenderer } = require('electron');
+﻿ï»¿const { contextBridge, ipcRenderer } = require('electron');
 
 // Exponer funciones seguras al proceso de renderizado
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -92,5 +92,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const sub = (event, data) => callback(data);
     ipcRenderer.on('enterprise-db-status', sub);
     return () => ipcRenderer.removeListener('enterprise-db-status', sub);
+  },
+  onEnterpriseDbReloaded: (callback) => {
+    const sub = (_event) => callback();
+    ipcRenderer.on('enterprise-db-reloaded', sub);
+    return () => ipcRenderer.removeListener('enterprise-db-reloaded', sub);
   }
 });

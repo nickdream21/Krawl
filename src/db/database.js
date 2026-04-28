@@ -1,4 +1,4 @@
-const initSqlJs = require('sql.js');
+﻿const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -12,15 +12,24 @@ let saveTimer = null;
 let _sqlitePath = null; // ruta activa; se setea en inicializar()
 const SAVE_DELAY = 2000; // 2 segundos de debounce para escrituras en lote
 
+let _watchTimer = null;       // debounce del watcher
+let _watcher = null;          // instancia fs.watch
+let _guardandoAhora = false;  // flag para ignorar eventos de nuestro propio guardado
+let _onReloadCallback = null; // callback que llama main.js cuando DB recargó
+
 // ═══════════════ FUNCIONES INTERNAS ═══════════════
 
 // Guardar base de datos a disco
 function guardarDB() {
   if (!db || !_sqlitePath) return;
   try {
+    _guardandoAhora = true;
     const data = db.export();
     fs.writeFileSync(_sqlitePath, Buffer.from(data));
+    // Resetear flag después de un tick (el evento watch llega asíncrono)
+    setTimeout(() => { _guardandoAhora = false; }, 500);
   } catch (err) {
+    _guardandoAhora = false;
     console.error('Error al guardar la base de datos:', err);
   }
 }
@@ -111,6 +120,41 @@ function reconstruirFTSSiNecesario() {
     }
   } catch (err) {
     console.error('Error al reconstruir FTS:', err);
+  }
+}
+
+// Iniciar monitoreo de cambios externos en el archivo sqlite (modo enterprise)
+function iniciarWatch(sqlitePath) {
+  if (_watcher) {
+    try { _watcher.close(); } catch (_) {}
+    _watcher = null;
+  }
+  try {
+    _watcher = fs.watch(sqlitePath, (eventType) => {
+      if (eventType !== 'change') return;
+      if (_guardandoAhora) return; // ignorar nuestro propio guardado
+      if (_watchTimer) clearTimeout(_watchTimer);
+      _watchTimer = setTimeout(async () => {
+        try {
+          console.log('[Enterprise] Cambio detectado en BD compartida, recargando...');
+          const SQL = await initSqlJs();
+          const buffer = fs.readFileSync(sqlitePath);
+          if (db) { try { db.close(); } catch(_) {} }
+          db = new SQL.Database(buffer);
+          reconstruirFTSSiNecesario();
+          console.log('[Enterprise] BD recargada desde disco correctamente');
+          if (_onReloadCallback) _onReloadCallback();
+        } catch (err) {
+          console.error('[Enterprise] Error al recargar BD:', err.message);
+        }
+      }, 3000); // esperar 3s a que Drive termine de sincronizar
+    });
+    _watcher.on('error', (err) => {
+      console.error('[Enterprise] Error en watcher:', err.message);
+    });
+    console.log('[Enterprise] Watcher de BD compartida activo en:', sqlitePath);
+  } catch (err) {
+    console.error('[Enterprise] No se pudo iniciar watcher:', err.message);
   }
 }
 
@@ -393,5 +437,26 @@ module.exports = {
       }
       resolve();
     });
+  },
+
+  // Iniciar monitoreo de cambios externos (solo modo enterprise)
+  iniciarWatchEnterprise: (onReload) => {
+    if (!_sqlitePath) return;
+    _onReloadCallback = onReload;
+    iniciarWatch(_sqlitePath);
+  },
+
+  // Detener monitoreo
+  detenerWatchEnterprise: () => {
+    if (_watcher) {
+      try { _watcher.close(); } catch (_) {}
+      _watcher = null;
+    }
+    if (_watchTimer) {
+      clearTimeout(_watchTimer);
+      _watchTimer = null;
+    }
+    _onReloadCallback = null;
+    console.log('[Enterprise] Watcher detenido');
   }
 };
