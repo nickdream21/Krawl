@@ -1,6 +1,6 @@
 {
     "name": "krawl-enterprise",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Krawl Enterprise - Gestor de documentos compartido para equipos",
     "main": "main.js",
     "scripts": {
@@ -80,7 +80,7 @@
             "provider": "github",
             "owner": "nickdream21",
             "repo": "Krawl",
-            "releaseType": "release"
+            "releaseType": "prerelease"
         },
         "win": {
             "icon": "build/icon.ico",
